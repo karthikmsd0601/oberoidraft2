@@ -1078,6 +1078,7 @@ textarea.field { height: 104px; }
 .fv-event .fv-panel { background: radial-gradient(120% 120% at 100% 0%, rgba(255, 223, 133, 0.4) 0, rgba(0, 0, 0, 0) 55%), linear-gradient(125deg, rgba(156, 109, 65, 0.86) 0%, rgba(109, 73, 42, 0.94) 100%), var(--panel-img) center / cover no-repeat; }
 .fv-photo-img { aspect-ratio: 0.93; display: grid; place-items: center; background: var(--white); overflow: hidden; }
 .fv-photo-img img { width: 100%; height: 100%; object-fit: contain; padding: 8%; }
+.fv-photo-img.cover img { object-fit: cover; padding: 0; } /* photos fill the frame edge to edge */
 @media (max-width: 680px) {
   .slide.fv { min-height: 190px; }
   .fv-event .fv-copy h3 { font-size: 13px; line-height: 1.25; }

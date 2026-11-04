@@ -162,14 +162,18 @@ window.APP_DATA = {
       title: "International Women's Day 2026: A message from the Chairman's desk",
       cta: 'Read Now!',
       bg: SP + '/sites/intranetuat/Lists/HomePage%20%20Events/Attachments/5/Reserved_ImageAttachment_[15]_[BackgroundImage][32]_[f0e06228bb0c4bb4a4174e40ac7c4778][1]_[7].png',
-      img: SP + '/sites/intranetuat/Lists/HomePage%20%20Events/Attachments/5/Reserved_ImageAttachment_[10]_[EventImage][32]_[412845e7dc65466a9da57d453aac7a8e][2]_[22].png',
+      // Stock photo (Unsplash) in place of the SharePoint event image, which needs a sign-in to load.
+      img: PHOTO('1716703742424-16bbc0d1fad3'),
+      fit: 'cover',
       tone: 'dark',
     },
     {
       title: 'Oberoi Mall and Sky City Mall win top honours at the National Awards for Excellence in shopping malls',
       cta: 'View More',
       bg: SP + '/sites/intranetuat/Lists/HomePage%20%20Events/Attachments/9/Reserved_ImageAttachment_[15]_[BackgroundImage][32]_[55955b9580784fd7bc5a4941e65148b6][1]_[7].png',
-      img: SP + '/sites/intranetuat/Lists/HomePage%20%20Events/Attachments/9/Reserved_ImageAttachment_[10]_[EventImage][32]_[2c26992ecf5640c4bc0b9a648502f2b1][1]_[5].png',
+      // Stock photo (Unsplash) in place of the SharePoint event image, which needs a sign-in to load.
+      img: PHOTO('1614521084980-811d04f6c6cb'),
+      fit: 'cover',
       tone: 'light',
     },
   ],

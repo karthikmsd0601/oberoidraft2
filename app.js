@@ -238,7 +238,7 @@
       <div class="fv-copy"><h3>${esc(b.title)}</h3>
         <button type="button" class="btn btn-primary fv-cta">${esc(b.cta)}${icon('arrowR')}</button></div>
       <span class="fv-arc" aria-hidden="true"></span><span class="fv-panel" aria-hidden="true" style="--panel-img:url('${b.bg}')"></span>
-      <div class="fv-photo fv-photo-img">${img(b.img, '', '')}</div>
+      <div class="fv-photo fv-photo-img${b.fit === 'cover' ? ' cover' : ''}">${img(b.img, '', '')}</div>
     </div>`;
   // Track order, left → right: [clone of 1st, last, …, 2nd, 1st]. Shifting the track one slide to the right
   // brings the next banner in from the left; reaching the clone snaps back to the real 1st without animation.
