@@ -10,7 +10,8 @@ const FACE = (id) => 'https://images.unsplash.com/photo-' + id + '?w=240&h=240&q
 window.APP_DATA = {
   // Display name is a sample name (on the live site this test account is called "Sharepoint Dev").
   user: { name: 'Arjun Mehta', email: 'sharepointdev@oberoirealty.com', title: 'Assistant Senior Manager - Learning & Development' },
-  logo: ASSETS + 'OberoiLogo_982d7a6888062cc402685078e84a5bdd.png',
+  // Local copy of the SharePoint logo (ASSETS + 'OberoiLogo_982d7a6888062cc402685078e84a5bdd.png'), so it shows without sign-in.
+  logo: 'images/logo.png',
 
   nav: [
     { id: 'home', label: 'Home', icon: 'home' },

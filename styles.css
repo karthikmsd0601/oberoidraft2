@@ -841,7 +841,7 @@ body { font-size: 13.5px; letter-spacing: -0.003em; }
 /* ---- Sidebar ---- */
 .sidebar { border-right-color: var(--grey-4); }
 .brand { height: 96px; border-bottom-color: var(--grey-4); }
-.brand img { width: 104px; }
+.brand img { width: 104px; mix-blend-mode: multiply; } /* local logo has a white background — blend it into the sidebar */
 .nav-wrap { padding: 16px 12px; }
 .nav { gap: 2px; }
 .nav a { height: 38px; padding: 0 12px; gap: 11px; border-radius: var(--r-sm); font-size: 13.5px; color: var(--text-strong); }
