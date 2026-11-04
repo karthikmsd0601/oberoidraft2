@@ -144,7 +144,9 @@ window.APP_DATA = {
   },
 
   festive: {
-    img: SP + '/sites/intranetuat/Lists/HomePage%20%20Events/Attachments/10/Reserved_ImageAttachment_[15]_[BackgroundImage][32]_[7f0414500f35485a9de7f207663aa9a1][2]_[79].jpg',
+    // Local copy of the SharePoint attachment (…/HomePage  Events/Attachments/10/…[BackgroundImage]…jpg),
+    // so the banner and the Chairman's photo show without a SharePoint sign-in (e.g. on Vercel).
+    img: 'images/banner-festive.jpg',
     alt: "Festive Greetings From The Chairman's Desk",
     lines: ['Festive Greetings', "From The Chairman's Desk"], // the banner's own wording, now set as live text
     cta: 'View More',
