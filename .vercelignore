@@ -1,0 +1,4 @@
+# Local / Replit-only files — Vercel serves the static site directly
+server.js
+.replit
+*.zip
