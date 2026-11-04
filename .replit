@@ -1,0 +1,14 @@
+modules = ["nodejs-20"]
+run = "npm start"
+entrypoint = "index.html"
+
+[env]
+HOST = "0.0.0.0"
+
+[[ports]]
+localPort = 5180
+externalPort = 80
+
+[deployment]
+run = ["npm", "start"]
+deploymentTarget = "cloudrun"
