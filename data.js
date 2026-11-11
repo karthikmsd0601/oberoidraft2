@@ -46,12 +46,18 @@ window.APP_DATA = {
       { id: 'job-postings', label: 'Job Postings' },
       { id: 'holiday-calendar', label: 'Holiday Calendar' },
     ],
+    // Shortcut cards: each card is the exact card from the supplied design (11 Nov 2026), cropped losslessly —
+    // photo, panel gradient, icon, label and arrow button. w × h = the card's size in the design (keeps proportions);
+    // tone = colour of the soft glow under the card. The label is also present as hidden text for screen readers.
+    // Dark mode: cardDark = the same card in dark (same photo and layout; from the wave down a see-through dark glass
+    // gradient — clear at the wave, deepening to dark — with gold icons, warm-white labels, dark button, gold chevron).
     tiles: [
-      { label: 'Celebrations', icon: 'cake', img: PHOTO('1464349153735-7db50ed83c84'), target: 'celebrations' },
-      { label: "Today's Menu", icon: 'restaurant', img: PHOTO('1742281257687-092746ad6021'), target: 'todays-menu' },
-      { label: 'Videos', icon: 'video', img: PHOTO('1594394489098-74ac04c0fc2e'), play: ASSETS + 'playButton_91892c09ef5839bb06de2690891c191e.png', target: 'video-gallery' },
-      { label: 'Applications', icon: 'apps', img: PHOTO('1499750310107-5fef28a66643'), target: '' },
-      { label: 'Everyday Hero', icon: 'verified', img: PHOTO('1578269174936-2709b6aeb913'), target: 'everyday-hero' },
+      // Celebrations / Everyday Hero recoloured to the Today's Menu peach, Videos to the Applications grey-green.
+      { label: 'Celebrations', card: 'images/tiles/card-celebrations.png', cardDark: 'images/tiles/dark/card-celebrations.png', w: 369, h: 321, tone: 'peach', target: 'celebrations' },
+      { label: "Today's Menu", card: 'images/tiles/card-todays-menu.png', cardDark: 'images/tiles/dark/card-todays-menu.png', w: 346, h: 320, tone: 'peach', target: 'todays-menu' },
+      { label: 'Videos', card: 'images/tiles/card-videos.png', cardDark: 'images/tiles/dark/card-videos.png', w: 346, h: 320, tone: 'sage', target: 'video-gallery' },
+      { label: 'Applications', card: 'images/tiles/card-applications.png', cardDark: 'images/tiles/dark/card-applications.png', w: 340, h: 320, tone: 'sage', target: '' },
+      { label: 'Everyday Hero', card: 'images/tiles/card-everyday-hero.png', cardDark: 'images/tiles/dark/card-everyday-hero.png', w: 349, h: 320, tone: 'peach', target: 'everyday-hero' },
     ],
     birthdays: {
       title: 'Birthdays',
@@ -124,6 +130,58 @@ window.APP_DATA = {
       { title: 'Assistant General Manager', code: '3884', dept: 'Quality Control', loc: 'Three Sixty North' },
       { title: 'Manager', code: '3873', dept: 'Procurement', loc: 'MEP' },
       { title: 'Manager', code: '3889', dept: 'Mall', loc: 'Leasing' },
+    ],
+  },
+
+  // ---------- Corporate page: Media, Policies, Video Gallery (live-site screenshots, 10 Nov 2026) ----------
+  corporate: {
+    sections: [
+      { id: 'media', label: 'Media' },
+      { id: 'policies', label: 'Policies' },
+      { id: 'videos', label: 'Video Gallery' },
+    ],
+    // logo: the publication's masthead, cut out (transparent background) from screenshots supplied on 11 Nov 2026;
+    //       logoH = display height in px (wide wordmarks are limited by width instead).
+    // photo: Unsplash stock image matching each story (not from the article itself).
+    media: [
+      { source: 'Business Standard', logo: 'images/press/business-standard.png', logoH: 26, date: '2026-05-06', title: "Oberoi Realty tops bid for Railway land in Mumbai's Bandra for ₹5,400 cr", photo: PHOTO('1480714378408-67cf0d13bc1b') },
+      { source: 'Adgully', logo: 'images/press/adgully.png', logoH: 34, date: '2026-05-06', title: 'Oberoi Realty redefines modern prosperity with Akshaya Tritiya Digital Film', photo: PHOTO('1502672260266-1c1ef2d93688') },
+      { source: 'The Economic Times', logo: 'images/press/economic-times.png', logoH: 22, date: '2026-05-06', title: "Oberoi Realty JV, Aman Group ink pact for luxury development in Mumbai's Worli", photo: PHOTO('1613490493576-7fde63acd811') },
+      { source: 'mid-day', logo: 'images/press/mid-day.png', logoH: 28, date: '2026-02-26', title: 'Apple opens second Mumbai store at Sky City Mall in Borivali', photo: PHOTO('1519567241046-7f570eee3ce6') },
+    ],
+    policyCategories: ['Employee Benefits', 'Employee Recognition', 'HRD', 'IT', 'Leave', 'Separation', 'Social Media'],
+    // Names are truncated on the live site; endings after the cut-off and each document's category are assumed.
+    policies: [
+      { name: 'ORL Business Continuity Policy', cat: 'IT' },
+      { name: 'Electronic Policy – Communication', cat: 'Social Media' },
+      { name: 'ORL_Workdays and Working Hours', cat: 'HRD' },
+      { name: 'Employment Regulations', cat: 'HRD' },
+      { name: 'Separation Policy', cat: 'Separation' },
+      { name: 'ORL Data Leakage Prevention Policy', cat: 'IT' },
+      { name: 'ORL Segregation of Duties Policy', cat: 'IT' },
+      { name: 'ORL_Birthday Gift Policy', cat: 'Employee Benefits' },
+      { name: 'Annexure - DEI Council', cat: 'HRD' },
+      { name: 'ORL Vulnerability Assessment Policy', cat: 'IT' },
+      { name: 'ORL Mobile Devices Policy', cat: 'IT' },
+      { name: 'ORL_Leave - Timeoff Policy', cat: 'Leave' },
+      { name: 'ORL_Learning & Development Policy', cat: 'Employee Recognition' },
+      { name: 'ORL_Marriage Gift Policy', cat: 'Employee Benefits' },
+      { name: 'ORL Data Governance Policy', cat: 'IT' },
+      { name: 'ORL Threat Intelligence Policy', cat: 'IT' },
+    ],
+    // Same categories as the Home Video Gallery. The six films are filed under Projects (assumed; the active tab is cut off).
+    videoCats: ['Projects', 'Corporate', 'Our People', 'Events', 'Teamwork Videos', 'Learning & Development'],
+    // photo: Unsplash stock image standing in for each film's poster frame (not from the live site).
+    videos: [
+      {
+        title: 'Three Sixty North - Revealer Film', cat: 'Projects', duration: '1:30', photo: PHOTO('1486406146926-c627a92ad1ab'),
+        desc: 'Three Sixty North by Oberoi Realty unveils a world of exclusive luxury in Gurugram. Thoughtfully envisioned with impeccable craftsmanship, it is designed to enrich everyday living through exceptional experiences. Discover a realm where quiet luxury finds its finest expression. Spacious 3 BHK & Studio and 4 BHK & Studio residences, along with duplexes and penthouses, crafted for elevated living.',
+      },
+      { title: 'Three Sixty West - Brand Film', cat: 'Projects', photo: PHOTO('1477959858617-67f85cf4f1df') },
+      { title: 'Sky City Project Film 2025', cat: 'Projects', photo: PHOTO('1460317442991-0ec209397118') },
+      { title: 'Homes of ORL – Gudi Padwa 2025', cat: 'Projects', photo: PHOTO('1600210492486-724fe5c67fb0') },
+      { title: 'Eternia and Enigma Brand film', cat: 'Projects', photo: PHOTO('1545324418-cc1a3fa10c00') },
+      { title: 'Forestville Brand Film', cat: 'Projects', photo: PHOTO('1449824913935-59a10b8d2000') },
     ],
   },
 
@@ -208,16 +266,17 @@ window.APP_DATA = {
   },
 
   erpPeriod: 'Q2 FY 2024-2025',
+  // photo: Unsplash stock portraits standing in for the winners' photos (not their real photos).
   erp: [
-    { name: 'Disha Sangani', role: 'General Manager - Customer Service', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.' },
-    { name: 'Ganesh Gholap', role: 'Manager - Procurement (RMC)', text: 'Awarded for securing a strategic partnership with Ultratech, achieving significant cost savings and ensuring a reliable concrete supply, reflecting excellent negotiation skills and project foresight.' },
-    { name: 'Mahesh Pawar', role: 'Assistant General Manager - Mall Engineering', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.' },
-    { name: 'Nilesh Sharma', role: 'Deputy Senior Manager - MEP (Electrical)', text: 'Nilesh led as-built reviews, vendor reconciliations, and billing checks, enabling substantial recoveries through credit notes and variation claims, strengthening cost efficiency.' },
-    { name: 'Palak Mehta', role: 'Senior Executive - Corp. Communication', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.' },
-    { name: 'Sanjana Moon', role: 'Deputy General Manager - Architecture', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.' },
-    { name: 'Sanjay Kumar', role: 'Deputy General Manager - Property Management Services', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.' },
-    { name: 'Sanjay Parmar', role: 'Assistant Manager - Finance', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.' },
-    { name: 'Shridhar Ludbe', role: 'Manager - Horticulture', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.' },
+    { name: 'Disha Sangani', role: 'General Manager - Customer Service', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.', photo: FACE('1772544797306-42ffcda5c63b') },
+    { name: 'Ganesh Gholap', role: 'Manager - Procurement (RMC)', text: 'Awarded for securing a strategic partnership with Ultratech, achieving significant cost savings and ensuring a reliable concrete supply, reflecting excellent negotiation skills and project foresight.', photo: FACE('1708144824610-f078a8cc926f') },
+    { name: 'Mahesh Pawar', role: 'Assistant General Manager - Mall Engineering', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.', photo: FACE('1531339413195-cc6c17163974') },
+    { name: 'Nilesh Sharma', role: 'Deputy Senior Manager - MEP (Electrical)', text: 'Nilesh led as-built reviews, vendor reconciliations, and billing checks, enabling substantial recoveries through credit notes and variation claims, strengthening cost efficiency.', photo: FACE('1729157659231-a9090b02987a') },
+    { name: 'Palak Mehta', role: 'Senior Executive - Corp. Communication', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.', photo: FACE('1514836894203-facaaeba1140') },
+    { name: 'Sanjana Moon', role: 'Deputy General Manager - Architecture', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.', photo: FACE('1533128361669-69c065857a13') },
+    { name: 'Sanjay Kumar', role: 'Deputy General Manager - Property Management Services', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.', photo: FACE('1609231443127-7e1e4c672ece') },
+    { name: 'Sanjay Parmar', role: 'Assistant Manager - Finance', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.', photo: FACE('1622550106849-af70f6984764') },
+    { name: 'Shridhar Ludbe', role: 'Manager - Horticulture', text: 'Recognized for his exceptional dedication, dynamic leadership, and meticulous execution of landscape projects, consistently achieving quality results ahead of schedule, even under challenging circumstances.', photo: FACE('1547757555-8b9048aa4369') },
   ],
 
   jobs: [
@@ -262,7 +321,86 @@ window.APP_DATA = {
     },
   },
 
+  // Training & Events page: sidebar sections and Photo Gallery albums (from the live-site screenshots; photos cut from them —
+  // the viewer only has the photos visible there: 4 of Power Garba's 9, and each other album's cover). The 5th live album
+  // ("Table T…", 13 photos) was cut off in the screenshot, so it is not included yet.
+  training: {
+    sections: [
+      { id: 'learning-events', label: 'Learning Events' },
+      { id: 'fun-at-work', label: 'Fun @ Work' },
+      { id: 'photo-gallery', label: 'Photo Gallery' },
+    ],
+    galleryCategory: 'Events',
+    albums: [
+      { title: 'Power Garba 2026', year: 2026, count: 9, photos: ['images/gallery/garba-1.jpg', 'images/gallery/garba-2.jpg', 'images/gallery/garba-3.jpg', 'images/gallery/garba-4.jpg'] },
+      { title: 'Ganesh Chaturthi 2026', year: 2026, count: 12, photos: ['images/gallery/ganesh.jpg'] },
+      { title: "ORL's Got Talent 2026", year: 2026, count: 15, photos: ['images/gallery/talent.jpg'] },
+      { title: 'Independence Day 2026', year: 2026, count: 7, photos: ['images/gallery/independence.jpg'] },
+    ],
+  },
+
+  // Learning & Development sessions (live "View all" pop-up, 2026). Only Feb (from the 11th) and April were visible in the
+  // screenshots; four titles were cut off there and are completed here (Hazzard Identification & Risk Assessment, Heat Stress &
+  // Prevention, Hot Work Safety - Welding, Gas Cutting, Safe Procedure for Shuttering & Deshuttering, Work at Height & Importance
+  // of Safety) — check against the live list.
+  learningEvents: [
+      { date: '2026-02-11', title: "Induction Program", place: "Head Office" },
+      { date: '2026-02-11', title: "Work Permit Procedure", place: "Sky Heights 120" },
+      { date: '2026-02-13', title: "Safe Operation in RSP", place: "Sky City" },
+      { date: '2026-02-16', title: "Induction Program", place: "Head Office" },
+      { date: '2026-02-18', title: "Induction Program", place: "Head Office" },
+      { date: '2026-02-18', title: "Grinder Safety", place: "Sky Heights 120" },
+      { date: '2026-02-19', title: "Facade Work Safety", place: "OGC III" },
+      { date: '2026-02-23', title: "MEP Work Safety", place: "OGC III" },
+      { date: '2026-02-23', title: "MEP Work Safety", place: "Forestville" },
+      { date: '2026-02-23', title: "Induction Program", place: "Head Office" },
+      { date: '2026-02-25', title: "Induction Program", place: "Head Office" },
+      { date: '2026-04-01', title: "Induction Program", place: "Head Office" },
+      { date: '2026-04-06', title: "Induction Program", place: "Head Office" },
+      { date: '2026-04-08', title: "Induction Program", place: "Head Office" },
+      { date: '2026-04-09', title: "Hazzard Identification & Risk Assessment", place: "Three Sixty West" },
+      { date: '2026-04-09', title: "Heat Stress & Prevention", place: "Malabar Hill" },
+      { date: '2026-04-09', title: "Hot Work Safety - Welding, Gas Cutting", place: "OGC - III" },
+      { date: '2026-04-10', title: "Scaffolding Safety", place: "Sky Height's 120" },
+      { date: '2026-04-13', title: "Fire Safety Measures", place: "OGC - III" },
+      { date: '2026-04-13', title: "Induction Program", place: "Head Office" },
+      { date: '2026-04-15', title: "Induction Program", place: "Head Office" },
+      { date: '2026-04-20', title: "Safe Procedure for Shuttering & Deshuttering", place: "Forestville, Kolshet" },
+      { date: '2026-04-20', title: "Induction Program", place: "Head Office" },
+      { date: '2026-04-22', title: "Work at Height & Importance of Safety", place: "Sky Height's 120" },
+      { date: '2026-04-22', title: "Induction Program", place: "Head Office" },
+      { date: '2026-04-23', title: "Hot Work Safety", place: "Three Sixty West" },
+      { date: '2026-04-23', title: "Gas Cylinder Safety", place: "OGC - III" },
+      { date: '2026-04-27', title: "Induction Program", place: "Head Office" },
+      { date: '2026-04-29', title: "Induction Program", place: "Head Office" },
+      // SAMPLE sessions for today (11 Nov 2026) and the coming weeks (not from the live site; modelled on its recurring sessions)
+      // so the Learning Events card's Today / Upcoming columns have content — replace with the real schedule.
+      { date: '2026-11-11', time: '10:00 AM', title: "Induction Program", place: "Head Office", sample: true },
+      { date: '2026-11-11', time: '3:00 PM', title: "Fire Safety Measures", place: "OGC - III", sample: true },
+      { date: '2026-11-13', time: '11:00 AM', title: "Work at Height & Importance of Safety", place: "Sky Height's 120", sample: true },
+      { date: '2026-11-16', time: '10:00 AM', title: "Induction Program", place: "Head Office", sample: true },
+      { date: '2026-11-18', time: '2:30 PM', title: "Scaffolding Safety", place: "Three Sixty West", sample: true },
+      { date: '2026-11-20', time: '11:00 AM', title: "Hot Work Safety", place: "Forestville", sample: true },
+      { date: '2026-11-25', time: '10:00 AM', title: "Induction Program", place: "Head Office", sample: true },
+      { date: '2026-12-02', time: '3:00 PM', title: "Gas Cylinder Safety", place: "OGC - III", sample: true },
+  ],
+
+  // Fun @ Work: earlier 2026 events from the live "View all" pop-up (the 24/25 June titles were faint and the 14 August title was
+  // cut off — "Carrom Tournament" and "…ORL's Got Talent" are best readings; check against the live list), then the existing list.
   funEvents: [
+    { date: '2026-01-08', title: "Chess" },
+    { date: '2026-01-23', title: "Republic Day" },
+    { date: '2026-02-20', title: "Mandala Painting" },
+    { date: '2026-03-03', title: "Fun fiesta - Holi event (2026)" },
+    { date: '2026-06-12', title: "Tambola Game / Board Games" },
+    { date: '2026-06-19', title: "International Yoga Day" },
+    { date: '2026-06-24', title: "Carrom Tournament" },
+    { date: '2026-06-25', title: "Carrom Tournament" },
+    { date: '2026-07-16', title: "Table Tennis" },
+    { date: '2026-07-17', title: "Table Tennis" },
+    { date: '2026-08-14', title: "Independence Day Celebration - ORL's Got Talent" },
+    { date: '2026-09-11', title: "Ganpati Festival" },
+    { date: '2026-10-16', title: "Navratri Celebration" },
     { date: '2026-11-05', title: 'Diwali Celebration' },
     { date: '2026-12-05', title: 'Cricket - Turf Option' },
     { date: '2026-12-24', title: 'Christmas Celebration' },
@@ -275,44 +413,185 @@ window.APP_DATA = {
 
   profile: {
     cover: ASSETS + 'CoverImage_6de2e8017cbc49587e07cacf32f72831.jpg',
+    // Stand-in for the SharePoint cover (needs a sign-in): Unsplash stock photo of a luxury residence.
+    coverPhoto: PHOTO('1613490493576-7fde63acd811'),
     phone: 'N/A',
     manager: 'N/A',
     about: 'Here is something about me...',
   },
 
+  // ---------- HR & Admin page (live-site screenshots, 11 Nov 2026) ----------
+  hr: {
+    sections: [
+      { id: 'know-your-team', label: 'Know Your Team' },
+      { id: 'wish-your-colleagues', label: 'Wish Your Colleagues' },
+      { id: 'applications', label: 'Applications' },
+      { id: 'erp-winners', label: 'ERP Winners' },
+      { id: 'jobPostings', label: 'Job Postings' }, // same anchor the Home "View More" link uses
+      { id: 'make-a-request', label: 'Make A Request' },
+      { id: 'send-suggestions', label: 'Send Suggestions' },
+    ],
+    // Wish Your Colleagues tabs — 6 people each: the section shows the first 4 (one full row), "View all" shows all 6.
+    // Only Sanjay Solanki and Vijay Khadye are from the live site (Sanjay's title is cut off there: "Deputy Manager - Site ...");
+    // every other entry is a SAMPLE (not from production) added to fill the tabs. Work Anniversaries reuse people from
+    // the HRD & Employee Services list. years = completed years. photo: Unsplash stock portraits (not real staff photos).
+    colleagues: {
+      Birthdays: [
+        { name: 'Sanjay Solanki', role: 'Deputy Manager - Site', dept: 'Construction', photo: FACE('1507003211169-0a1dd7228f2d') },
+        { name: 'Vijay Khadye', role: 'Deputy Manager - Stores', dept: 'Construction', photo: FACE('1719154718540-8ef3d94e7712') },
+        { name: 'Priya Deshmukh', role: 'Executive - Human Resources', dept: 'HRD', photo: FACE('1573497019707-1c04de26e58c') },
+        { name: 'Rahul Mehta', role: 'Manager - Sales', dept: 'Sales', photo: FACE('1600878459138-e1123b37cb30') },
+        { name: 'Sneha Kulkarni', role: 'Senior Executive - Accounts', dept: 'Finance', photo: FACE('1655249493799-9cee4fe983bb') },
+        { name: 'Kavya Nair', role: 'Assistant Manager - Customer Service', dept: 'CRM', photo: FACE('1646979201225-00e36437d09e') },
+      ],
+      'New Joiners': [
+        { name: 'Amit Joshi', role: 'Assistant Manager - Projects', dept: 'Projects', photo: FACE('1568585105565-e372998a195d') },
+        { name: 'Neha Iyer', role: 'Executive - Marketing', dept: 'Marketing', photo: FACE('1577878317861-2a54eb46ed42') },
+        { name: 'Rohan Desai', role: 'Executive - Leasing', dept: 'Mall', photo: FACE('1625241152315-4a698f74ceb7') },
+        { name: 'Ananya Rao', role: 'Architect', dept: 'Architecture', photo: FACE('1680506742421-7420d343bf68') },
+        { name: 'Kunal Shah', role: 'Engineer - MEP', dept: 'Construction', photo: FACE('1572651203008-39a6c9307453') },
+        { name: 'Meera Pillai', role: 'Executive - Legal', dept: 'Legal', photo: FACE('1646979200272-b76a262249b8') },
+      ],
+      'Work Anniversaries': [
+        { name: 'Sandeep Dhuri', role: 'Manager - HR Operations', dept: 'HRD', years: 10, photo: FACE('1774437790865-76bfb73d7166') },
+        { name: 'Aarti Satghare', role: 'Assistant General Manager - HRD', dept: 'HRD', years: 8, photo: FACE('1689600944138-da3b150d9cb8') },
+        { name: 'Naresh Kadam', role: 'Manager - Employee Services', dept: 'HRD', years: 5, photo: FACE('1670110531916-41045e83cb0a') },
+        { name: 'Sejal Sheth', role: 'Senior Manager - HRD', dept: 'HRD', years: 3, photo: FACE('1594540637720-9b14714212f4') },
+        { name: 'Rucha Saple', role: 'Deputy Manager - HRD', dept: 'HRD', years: 2, photo: FACE('1772726837346-b1d22515c0f0') },
+        { name: 'Shubham Gawas', role: 'Assistant Senior Executive - Employee Services', dept: 'HRD', years: 1, photo: FACE('1782323709687-43675cbddd46') },
+      ],
+    },
+    // Application tiles: logos cut from the live-site screenshot (transparent PNGs).
+    apps: [
+      { name: 'Vendor Globe', logo: 'images/apps/vendor-globe.png' },
+      { name: 'Green Dash', logo: 'images/apps/green-dash.png' },
+      { name: 'Microsoft 365', logo: 'images/apps/microsoft-365.png' },
+      { name: 'NimbleS2P', logo: 'images/apps/nimbles2p.png' },
+      { name: 'Laserfiche', logo: 'images/apps/laserfiche.png' },
+      { name: 'Zoho Expense', logo: 'images/apps/zoho-expense.png' },
+      { name: 'Onex Recon', logo: 'images/apps/onex-recon.png' },
+      { name: 'SuccessFactors', logo: 'images/apps/successfactors.png' },
+    ],
+    // Request types from the live "Select a request" drop-down ("Cafetaria" on the live site, spelled correctly here).
+    requestTypes: [
+      { id: 'fun-at-work', label: 'Fun @ Work', icon: 'celebration' },
+      { id: 'cafeteria', label: 'Cafeteria', icon: 'restaurant' },
+      { id: 'trainings', label: 'Trainings', icon: 'school' },
+      { id: 'admin', label: 'Admin', icon: 'business' },
+      { id: 'others', label: 'Others', icon: 'more' },
+    ],    // ERP Winners by quarter; only Q2 FY 2026-2027 is visible in the screenshots (other quarters show an empty state).
+    erp: {
+      'Q2 FY 2026-2027': [
+        { name: 'Roma Mistry', role: 'Senior Manager - Sales', text: 'Roma played a pivotal role in the TSN launch by driving the implementation of new sales process and training teams across Mumbai and Gurugram. Her support and ownership contributed to the effectiveness of the sales teams.' },
+        { name: 'Santanu Sinha', role: 'Manager - Civil', text: 'Santanu demonstrated exceptional ownership by driving key construction activities, proactively resolving execution challenges, and ensuring project progress remained on track. His technical expertise and cross-team collaboration contributed significantly to project delivery.' },
+        { name: 'Urvashi Goradia', role: 'Manager - Sales', text: "Urvashi delivered an outstanding sales performance, exceeding her targets while achieving the team's highest conversion rate. Her support in SFDC implementation and team training reflect her consistent performance and ownership." },
+      ],
+      'Q1 FY 2026-2027': [],
+      'Q4 FY 2025-2026': [],
+      'Q3 FY 2025-2026': [],
+    },
+  },
+
+  // photo: Unsplash stock photo shown in place of the main icon on each Our Values card (quality = luxury living room with marble and wood finishes,
+  // teamwork = stacked hands, integrity = handshake; People First keeps its icon, innovation = glowing bulb).
+  // Our Values: tiles cut from the live-site screenshot (the SharePoint images need a sign-in); icon = the white icon lifted
+  // out of each tile (used as a mask on the glass cards), tone = the tile colour, darkened for use on light glass;
+  // glow = the two-colour gradient behind each glass card (the greys of People First / Integrity are warmed up).
+  // tagline: Quality and Teamwork use the live Everyday Hero taglines; Innovation uses the live "Pioneering the Extraordinary";
+  // People First and Integrity are SAMPLE lines to replace with the official wording.
+  // statement: the hover bubble text. Innovation is the live text; the other four are SAMPLE lines (not seen on the live site yet).
   values: [
-    { img: SP + '/sites/intranetuat/Lists/I%20Connect%20%20Our%20Values/Attachments/1/Reserved_ImageAttachment_[6]_[Banner][32]_[e616e9d1d49d48dda48f83b4bde0a90a][1]_[1].jpg', alt: 'QUALITY' },
+    { img: 'images/values/quality.png', alt: 'Quality', photo: PHOTO('1757924461488-ef9ad0670978'), tagline: 'Set higher standards', statement: 'We set higher standards in everything we build', icon: 'images/values/icon-quality.png', tone: '#878a55', glow: ['#a9a86e', '#d8d39c'] },
+    { img: 'images/values/teamwork.png', alt: 'Teamwork', photo: PHOTO('1630068846062-3ffe78aa5049'), tagline: 'Making the dream work', statement: 'Together, we make the dream work', icon: 'images/values/icon-teamwork.png', tone: '#9a6b2f', glow: ['#b07a36', '#e2b273'] },
+    { img: 'images/values/people-first.png', alt: 'People First', tagline: 'Our people come first', statement: 'We put our people at the heart of every decision', icon: 'images/values/icon-people-first.png', tone: '#8a7f6e', glow: ['#b6a690', '#dcbc92'] },
+    { img: 'images/values/integrity.png', alt: 'Integrity', photo: PHOTO('1521791136064-7986c2920216'), tagline: 'Do the right thing, always', statement: 'We do what is right, even when no one is watching', icon: 'images/values/icon-integrity.png', tone: '#1f1f1f', glow: ['#6b5a49', '#c19a6b'] },
+    { img: 'images/values/innovation.png', alt: 'Innovation', photo: PHOTO('1552862750-746b8f6f7f25'), tagline: 'Pioneering the extraordinary', statement: 'We transform imagination into reality', icon: 'images/values/icon-innovation.png', tone: '#ef5a24', glow: ['#f06a32', '#ffb27d'] },
   ],
+
+  // I-Connect: text and photos from the live-site screenshots (photos cut from the screenshots). The live list shows
+  // "View 3 more stories"; those three were not in the screenshots, so they are not here yet.
+  iconnect: {
+    sections: [
+      { id: 'our-values', label: 'Our Values' },
+      { id: 'people-stories', label: 'People Stories' },
+      { id: 'newsletter', label: 'Newsletter' },
+    ],
+    stories: [
+      { title: 'A Three-Day Escape to Hyderabad Trains, Biryani & Timeless Streets', tag: 'Travel', img: 'images/stories/hyderabad.jpg',
+        // Read-more page (from the live pop-up screenshot): date, photo gallery (cut from the screenshot, so the 2nd and 3rd are
+        // thumbnail-sized) and the full text. The other stories only have their card excerpt so far.
+        date: 'January 28, 2026',
+        gallery: ['images/stories/hyderabad-1.jpg', 'images/stories/hyderabad-2.jpg', 'images/stories/hyderabad-3.jpg'],
+        body: [
+          'Sometimes, all you need is a short break to reset your mind. For me, that break came in the form of a spontaneous three-day solo trip to Hyderabad.',
+          'I took three days off from work and boarded an early-morning train from Mumbai. The journey covered more than 800 kilometres, and traveling alone made it even more special. With no rush and no fixed conversations, I had time to simply watch the world pass by and enjoy my own company as the train rolled forward.',
+          'By the time I arrived, Hyderabad welcomed me with its unique blend of history and modern life. After checking into my hotel and freshening up, I booked a cab and stepped out to explore the city.',
+          'My first stop was the iconic Charminar. Standing beneath its towering arches, surrounded by busy streets and local shops, I felt deeply present in the moment. From there, I headed to Niloufer Café for their famous chai. Sitting there alone with a cup of hot chai, watching the city move around me, felt strangely comforting. Later, dinner at Pista House introduced me to Hyderabad’s legendary biryani—aromatic, rich, and unforgettable.',
+          'The next morning, I rented a bike and explored the city at my own pace. Riding solo through Hyderabad gave me a rare sense of freedom. I visited the State Museum, paused by the calm waters of Hussain Sagar Lake, climbed through the historic Golconda Fort, and wandered through the royal corridors of Chowmahalla Palace.',
+          'Before I knew it, the trip was coming to an end. I boarded the morning train back to Mumbai, carrying more than just photos. The journey reminded me why solo trips are the best... they teach you to enjoy your own company, move at your own rhythm, and return home feeling lighter.',
+          'The trip was short, but it was exactly what I needed—a much-needed break from work, and a quiet reminder that sometimes, traveling alone is the most fulfilling journey of all.',
+        ],
+        text: 'Sometimes, all you need is a short break to reset your mind. For me, that break came in the form of a spontaneous three-day solo trip to Hyderabad. I took three days off from work and boarded an early-morning train from Mumbai. The journey covered more than 800 kilometres, and traveling alone made it even more special. With no rush and no fixed conversations, I had time to simply watch the world pass by and enjoy my own company as the' },
+      { title: 'Finding Peace in the Chaos A 4,000 km Journey of Faith, Friendship, and Determination', tag: 'Travel', img: 'images/stories/ujjain.jpg',
+        text: 'What started as a casual idea soon turned into a once-in-a-lifetime journey. Covering nearly 4,000 km by road, our route stretched from Mumbai to Ujjain and Indore, onward to' },
+      { title: 'A Spiritual and Sensory Journey in Amritsar', tag: 'Travel', img: 'images/stories/amritsar.jpg',
+        text: "The city offers a feast for the senses, from the Golden Temple's divine serenity to the patriotism at the Wagah Border. Get ready for a journey through history, devotion," },
+      { title: 'My First Solo Trip to Delhi - A Journey of Discovery', tag: 'Travel', img: 'images/stories/delhi.jpg', portrait: true,
+        text: "My first solo trip to Delhi was a rollercoaster of excitement, nerves, and discovery. From the moment I landed, the city's vibrant energy embraced me. A magnetic mix of history," },
+      { title: 'Seoul has my Soul - My 11 Day South Korea Adventure', tag: 'Travel', img: 'images/stories/south-korea.jpg',
+        text: 'In April 2025, I visited South Korea with a group of 14 and spent 11 unforgettable days exploring the culture, cuisine, and vibrant cities of Seoul, Busan, and Jeju Island. We' },
+      { title: 'A Short Journey, A Long-Lasting Peace', tag: 'Travel', img: 'images/stories/short-journey.jpg',
+        text: "I've always believed that travel doesn't have to be long to be meaningful. Being a working professional with limited time off, I usually opt for short, purposeful trips that help me" },
+      { title: "An Unexpected Adventure through Bhutan's Mountains and Wonders", tag: 'Travel', img: 'images/stories/bhutan.jpg',
+        text: 'Some of the best adventures begin with the unexpected. My wife and I had planned to visit our friends in the North East Frontier Area (NEFA) in May, but after two days, sudden' },
+    ],
+    newsletters: [
+      { title: 'Leading with Reciprocity - Our Women Leaders reflect on Give to Gain', img: 'images/newsletter/give-to-gain.jpg',
+        text: "For International Women's Day 2026, the theme Give to Gain brings attention to the role that shared experiences play in shaping meaningful growth. These exchanges often leave a lasting impact, creating opportunities for individuals to move forward with greater clarity and confidence. Within our organisation, many women have built their paths through both personal determination and the support of others who believed" },
+      { title: 'Highlights from Oberoi Mall - Green Initiatives, Exciting Experiences and Ensuring a Secure', img: 'images/newsletter/mall-green.jpg',
+        text: 'Oberoi Mall constantly strives to integrate sustainability, creativity, and safety into the heart of its operations. From promoting green initiatives to offering exciting experiences' },
+      { title: "Flying Lessons - Charting New Paths in Women's Leadership", img: 'images/newsletter/flying-lessons.jpg',
+        text: "“Leaders are not born, they are made.” While this famous quote may not have a clear origin, but it's definitely what the world's most charismatic leaders believe. At Oberoi Realty," },
+      { title: 'A Walk through the Design Studio reveals what truly sets Oberoi Realty apart', img: 'images/newsletter/design-studio.jpg',
+        text: 'Oberoi Realty stands out in the luxury real estate market by Pioneering the Extraordinary. With a thought-led design philosophy, we are driven to create unique spaces and' },
+      { title: 'Embracing People First', img: 'images/newsletter/people-first.jpg',
+        text: 'Discover how the People First initiative and workshops have transformed the perspectives and practices of our leaders and employees across the organization. Here, they share' },
+      { title: 'Highlights from Oberoi Mall', img: 'images/newsletter/mall-highlights.jpg',
+        text: 'Oberoi Mall continues to be a hub of vibrant activities and new beginnings. From the grand launch of Good Flippin Burgers, graced by TV and social media stars, to the elegant' },
+    ],
+  },
 
   hrApps: [
     { img: SP + '/sites/intranetuat/Lists/HR%20Admin%20%20Important%20Links/Attachments/1/Reserved_ImageAttachment_[5]_[Image][32]_[85f3b287d73641f0b6f801d33cc73cf1][1]_[1].png' },
   ],
 
+  // HRD & Employee Services: [name, role, photo]. Photos are Unsplash stock portraits standing in for staff photos
+  // (not the employees' real photos); Arjun Mehta (the signed-in user) keeps the default avatar like the profile card.
   team: [
-    ['Aarti Satghare', 'Assistant General Manager - HRD'],
-    ['Aditi Bhosle', 'Assistant Senior Executive - Front Office & Employee Services'],
-    ['Alisha Fernandes', 'Assistant General Manager - HRD'],
-    ['Amita Nijhawan', 'Senior General Manager - HRD'],
-    ['Amruta Khemkar', 'Deputy Senior Executive - Front Office'],
-    ['Amruta Meher', 'Manager - HRD'],
-    ['Jaspreet Chatha', 'Deputy Manager - Learning & Organizational Development'],
-    ['Lizann Dias', 'Assistant Senior Executive - Front Office'],
-    ['Namrata Desai', 'Senior General Manager - HRD'],
-    ['Naresh Kadam', 'Manager - Employee Services'],
-    ['Neha Bhatnagar', 'Executive- Front Office and Administration'],
-    ['Rakesh Chandel', 'General Manager'],
-    ['Rucha Saple', 'Deputy Manager - HRD'],
-    ['Samruddhi Wakharkar', 'Deputy Manager - Learning & Organizational Development'],
-    ['Sandeep Dhuri', 'Manager - HR Operations'],
-    ['Sandeep Panchal', 'Deputy General Manager - Employee Services'],
-    ['Sejal Sheth', 'Senior Manager - HRD'],
+    ['Aarti Satghare', 'Assistant General Manager - HRD', FACE('1689600944138-da3b150d9cb8')],
+    ['Aditi Bhosle', 'Assistant Senior Executive - Front Office & Employee Services', FACE('1739785248579-cd43cdaac06b')],
+    ['Alisha Fernandes', 'Assistant General Manager - HRD', FACE('1758518729459-235dcaadc611')],
+    ['Amita Nijhawan', 'Senior General Manager - HRD', FACE('1547212371-eb5e6a4b590c')],
+    ['Amruta Khemkar', 'Deputy Senior Executive - Front Office', FACE('1768221677463-191fc4e15690')],
+    ['Amruta Meher', 'Manager - HRD', FACE('1726156619056-5de67024df67')],
+    ['Jaspreet Chatha', 'Deputy Manager - Learning & Organizational Development', FACE('1609436132311-e4b0c9370469')],
+    ['Lizann Dias', 'Assistant Senior Executive - Front Office', FACE('1631606929991-200006582c09')],
+    ['Namrata Desai', 'Senior General Manager - HRD', FACE('1679138118375-47f78db3761d')],
+    ['Naresh Kadam', 'Manager - Employee Services', FACE('1670110531916-41045e83cb0a')],
+    ['Neha Bhatnagar', 'Executive- Front Office and Administration', FACE('1725033489648-a819750348eb')],
+    ['Rakesh Chandel', 'General Manager', FACE('1729157661483-ed21901ed892')],
+    ['Rucha Saple', 'Deputy Manager - HRD', FACE('1772726837346-b1d22515c0f0')],
+    ['Samruddhi Wakharkar', 'Deputy Manager - Learning & Organizational Development', FACE('1706943262459-3ef6ce03305c')],
+    ['Sandeep Dhuri', 'Manager - HR Operations', FACE('1774437790865-76bfb73d7166')],
+    ['Sandeep Panchal', 'Deputy General Manager - Employee Services', FACE('1564490215983-296e5f56b623')],
+    ['Sejal Sheth', 'Senior Manager - HRD', FACE('1594540637720-9b14714212f4')],
     ['Arjun Mehta', 'Assistant Senior Manager - Learning & Development'],
-    ['Shraddha Wadekar', 'Deputy Manager - HRD'],
-    ['Shubham Gawas', 'Assistant Senior Executive - Employee Services'],
-    ['Sonal Deshpande', 'Assistant Senior Manager - HRD'],
-    ['Soumyadeep Sinha', 'Apprentice'],
-    ['Sylvia Pinto', 'Deputy Senior Executive'],
-    ['Unmesh Mayekar', 'Head - HRD & Employee Services'],
-    ['Varun Vanker', 'Deputy Manager - HR Operations'],
+    ['Shraddha Wadekar', 'Deputy Manager - HRD', FACE('1646979201169-e83d743bfa8d')],
+    ['Shubham Gawas', 'Assistant Senior Executive - Employee Services', FACE('1782323709687-43675cbddd46')],
+    ['Sonal Deshpande', 'Assistant Senior Manager - HRD', FACE('1642757205086-567b72efaa80')],
+    ['Soumyadeep Sinha', 'Apprentice', FACE('1712425718855-5169714b3632')],
+    ['Sylvia Pinto', 'Deputy Senior Executive', FACE('1544264796-acfb69e05b37')],
+    ['Unmesh Mayekar', 'Head - HRD & Employee Services', FACE('1778692258270-bc0e80e975c0')],
+    ['Varun Vanker', 'Deputy Manager - HR Operations', FACE('1609770653328-a4d1dd377970')],
   ],
 };
