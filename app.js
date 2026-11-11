@@ -607,7 +607,7 @@
           <div data-pol-empty hidden>${empty('No policies found', 'Try another category or search term', 'doc')}</div></div>
         <div class="ml-pane" aria-hidden="true" inert><ul class="pl-grid">${polItems()}</ul></div>
       </div>`,
-    { right: `<div class="ph-actions pl-actions">${searchBox('Search policies...', 'data-filter-policies', 'sm')}${viewAll()}</div>`, ico: 'doc', anchor: 'policies', sub: `${C.policies.length} documents` });
+    { right: `<div class="ph-actions pl-actions">${searchBox('Search policies...', 'data-filter-policies', 'sm')}${viewAll('View all', 'modal:policies')}</div>`, ico: 'doc', anchor: 'policies', sub: `${C.policies.length} documents` });
   function filterPolicies() {
     const root = $('[data-anchor="policies"]');
     if (!root) return;
@@ -1168,6 +1168,31 @@
     body.scrollTop = 0;
   }
 
+  // Corporate › Policies "View all": every policy, by category (menu with counts), searchable, sorted by category or A–Z.
+  const POL_ICON = { 'Employee Benefits': 'celebration', 'Employee Recognition': 'verified', HRD: 'supervisor', IT: 'laptop', Leave: 'calendar', Separation: 'work', 'Social Media': 'campaign' };
+  const apRow = (p) => `<li class="ap2-item"><span class="pl-file" aria-hidden="true">${icon('doc')}<b>PDF</b></span>
+      <span class="ap2-info"><b title="${esc(p.name)}">${esc(p.name)}</b><small>${icon(POL_ICON[p.cat] || 'doc')}${esc(p.cat)}</small></span>
+      <button type="button" class="ap2-dl" aria-label="Download ${esc(p.name)}" title="Download">${icon('download')}</button></li>`;
+  function renderAp(bd) {
+    const cat = bd.dataset.cat || POL_ALL, sort = bd.dataset.sort || 'cat';
+    const q = ($('[data-ap-search]', bd).value || '').trim().toLowerCase();
+    const list = C.policies.filter((p) => (cat === POL_ALL || p.cat === cat) && `${p.name} ${p.cat}`.toLowerCase().includes(q));
+    bd.querySelectorAll('[data-ap-cat]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.apCat === cat)));
+    bd.querySelectorAll('[data-ap-sort]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.apSort === sort)));
+    $('[data-ap-count]', bd).textContent = `${list.length} of ${C.policies.length} documents${cat === POL_ALL ? '' : ` · ${cat}`}`;
+    const body = $('[data-ap-body]', bd);
+    if (!list.length) { body.innerHTML = empty('No policies found', 'Try another category or search term', 'doc'); return; }
+    const byName = (x, y) => x.name.localeCompare(y.name, undefined, { sensitivity: 'base' });
+    if (sort === 'az') {
+      body.innerHTML = `<ul class="ap2-grid">${list.slice().sort(byName).map(apRow).join('')}</ul>`;
+    } else {
+      const cats = C.policyCategories.filter((c) => list.some((p) => p.cat === c));
+      body.innerHTML = cats.map((c) => { const ps = list.filter((p) => p.cat === c).sort(byName);
+        return `<section class="ap2-sec"><h3 class="ap2-h"><span class="ap2-h-ico">${icon(POL_ICON[c] || 'doc')}</span>${esc(c)}<span class="ap2-n">${ps.length}</span></h3><ul class="ap2-grid">${ps.map(apRow).join('')}</ul></section>`; }).join('');
+    }
+    body.scrollTop = 0;
+  }
+
   // "View all stories" archive: category pills + search over every story; cards open the read view (with a way back).
   function renderSa(bd) {
     const pill = $('[data-sa-tag][aria-pressed="true"]', bd), tag = pill ? pill.dataset.saTag : 'All';
@@ -1290,6 +1315,16 @@
         <div class="sa-bar"><div class="pill-row" role="group" aria-label="Category">${['All', ...tags].map((t, i) => `<button type="button" class="pill" data-sa-tag="${esc(t)}" aria-pressed="${i === 0}">${esc(t)}<span>${count(t)}</span></button>`).join('')}</div><p class="sa-count" data-sa-count aria-live="polite"></p></div>
         <div class="modal-body sa-body"><div class="sa-grid">${IC.stories.map((st, i) => pjCard(st, i, 'tile', ` data-sa-item data-tag="${esc(st.tag)}" data-from="archive"`)).join('')}</div>
           <div data-sa-empty hidden>${empty('No stories found', 'Try another category or search term', 'article')}</div></div>`;
+    } else if (name === 'policies') {
+      const cats = [POL_ALL, ...C.policyCategories];
+      body = `${head(`<span class="ea-title">All Policies<small>${C.policies.length} documents · ${C.policyCategories.length} categories</small></span>`, `<label class="field-search sm mwc-search">${icon('search')}<span class="sr-only">Search policies</span><input type="search" placeholder="Search policies..." data-ap-search /></label>`)}
+        <div class="ap2">
+          <nav class="ap2-nav" aria-label="Policy categories">${cats.map((c) => `<button type="button" class="ap2-cat" data-ap-cat="${esc(c)}" aria-pressed="${c === POL_ALL}"><span class="ap2-cat-ico">${icon(c === POL_ALL ? 'apps' : POL_ICON[c] || 'doc')}</span><span class="ap2-cat-t">${c === POL_ALL ? 'All policies' : esc(c)}</span><span class="ap2-n">${polCount(c)}</span></button>`).join('')}</nav>
+          <div class="ap2-main">
+            <div class="ap2-bar"><p data-ap-count aria-live="polite"></p><div class="ap2-sort" role="group" aria-label="Sort"><button type="button" data-ap-sort="cat" aria-pressed="true">By category</button><button type="button" data-ap-sort="az" aria-pressed="false">A–Z</button></div></div>
+            <div class="ap2-body" data-ap-body></div>
+          </div>
+        </div>`;
     } else if (name === 'calendar') {
       body = `<div class="cd-head"><div><h2 id="modal-title">Calendar</h2><p>Today · ${DAYS[today.getDay()]}, ${today.getDate()} ${MONTHS[today.getMonth()]} ${today.getFullYear()}</p></div><button type="button" class="cd-close" data-close-modal aria-label="Close calendar">${icon('close')}</button></div>
         <div class="cd-body">
@@ -1349,6 +1384,9 @@
       const srStep = e.target.closest('[data-sr-step]'), srShot = e.target.closest('[data-sr-shot]'), srStory = e.target.closest('[data-sr-story]');
       if (srStep || srShot) { renderSr(bd, +bd.dataset.srAt, srShot ? +srShot.dataset.srShot : +bd.dataset.srPic + +srStep.dataset.srStep); $(srShot ? `[data-sr-shot="${srShot.dataset.srShot}"]` : `[data-sr-step="${srStep.dataset.srStep}"]`, bd)?.focus(); return; }
       if (srStory) { renderSr(bd, +srStory.dataset.srStory); $('[data-sr]', bd).scrollTop = 0; $('.rd-close', bd)?.focus({ preventScroll: true }); return; }
+      const apCat = e.target.closest('[data-ap-cat]'), apSort = e.target.closest('[data-ap-sort]');
+      if (apCat) { bd.dataset.cat = apCat.dataset.apCat; renderAp(bd); return; }
+      if (apSort) { bd.dataset.sort = apSort.dataset.apSort; renderAp(bd); return; }
       const cdStep = e.target.closest('[data-cd-step]'), cdDay = e.target.closest('[data-cd-day]');
       if (cdStep) { const t = new Date(+bd.dataset.y, +bd.dataset.m + +cdStep.dataset.cdStep, 1); bd.dataset.y = t.getFullYear(); bd.dataset.m = t.getMonth(); renderCd(bd); return; }
       if (cdDay) { bd.dataset.sel = cdDay.dataset.cdDay; renderCd(bd); $(`[data-cd-day="${cdDay.dataset.cdDay}"]`, bd)?.focus(); return; }
@@ -1384,7 +1422,7 @@
         renderHolidayList(bd);
       }
     });
-    if (name === 'weekly-menu') renderWeeklyMenu(bd); else if (name === 'holiday-calendar') renderHolidayList(bd); else if (name === 'colleagues') renderMwc(bd); else if (name === 'erp') renderEa(bd); else if (name === 'stories' || name === 'newsletters') renderSa(bd); else if (name === 'gallery') { bd.classList.add('lb-backdrop'); renderLb(bd); } else if (name === 'calendar') { bd.classList.add('drawer-backdrop'); bd.dataset.y = today.getFullYear(); bd.dataset.m = today.getMonth(); bd.dataset.sel = isoOf(today0); renderCd(bd); } else if (name === 'te-ld' || name === 'te-fun') { bd.dataset.kind = name; bd.dataset.year = today.getFullYear(); renderTev(bd); } else if (name === 'story') {
+    if (name === 'weekly-menu') renderWeeklyMenu(bd); else if (name === 'holiday-calendar') renderHolidayList(bd); else if (name === 'colleagues') renderMwc(bd); else if (name === 'erp') renderEa(bd); else if (name === 'stories' || name === 'newsletters') renderSa(bd); else if (name === 'gallery') { bd.classList.add('lb-backdrop'); renderLb(bd); } else if (name === 'policies') { bd.dataset.cat = POL_ALL; bd.dataset.sort = 'cat'; renderAp(bd); } else if (name === 'calendar') { bd.classList.add('drawer-backdrop'); bd.dataset.y = today.getFullYear(); bd.dataset.m = today.getMonth(); bd.dataset.sel = isoOf(today0); renderCd(bd); } else if (name === 'te-ld' || name === 'te-fun') { bd.dataset.kind = name; bd.dataset.year = today.getFullYear(); renderTev(bd); } else if (name === 'story') {
       bd.dataset.srFrom = (opener && opener.dataset.from) || '';
       bd.dataset.srSet = (opener && opener.dataset.set) || 'stories';
       renderSr(bd, +((opener && opener.dataset.story) || 0));
@@ -1708,6 +1746,7 @@
     if (e.target.matches('[data-mwc-search]')) renderMwc(e.target.closest('.modal-backdrop'));
     if (e.target.matches('[data-ea-search]')) renderEa(e.target.closest('.modal-backdrop'));
     if (e.target.matches('[data-sa-search]')) renderSa(e.target.closest('.modal-backdrop'));
+    if (e.target.matches('[data-ap-search]')) renderAp(e.target.closest('.modal-backdrop'));
     if (e.target.matches('[data-count]')) {
       const out = e.target.closest('form').querySelector('[data-count-out]');
       if (out) { out.textContent = `${e.target.value.length} / ${e.target.maxLength}`; out.classList.toggle('near', e.target.value.length >= e.target.maxLength - 50); }
