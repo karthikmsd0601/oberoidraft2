@@ -2701,3 +2701,9 @@ html.theme-switch, html.theme-switch *, html.theme-switch *::before, html.theme-
   .ap2-grid { grid-template-columns: minmax(0, 1fr); }
   .ap2-bar { padding: 10px 14px; } .ap2-body { padding: 4px 14px 16px; }
 }
+
+/* Top bar date pill: always one line; a short date where the top bar is tight (no two-line blob) */
+.greet .greet-date { max-width: 100%; white-space: nowrap; }
+.greet .greet-date > span { overflow: hidden; text-overflow: ellipsis; }
+.gd-short { display: none; }
+@media (max-width: 1280px) { .gd-long { display: none; } .gd-short { display: inline; } }

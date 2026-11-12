@@ -1106,7 +1106,7 @@
     $('#topbar').innerHTML = `
       <div class="topbar-inner">
         <button type="button" class="menu-btn" aria-label="Open navigation" data-open-nav>${icon('menu')}</button>
-        <div class="greet"><h1>Hello, <b>${esc(D.user.name)}!</b></h1><p class="greet-date">${icon('calendar')}Today is ${DAYS[d.getDay()]} ${ord(d.getDate())} ${MONTHS[d.getMonth()]} ${d.getFullYear()}</p></div>
+        <div class="greet"><h1>Hello, <b>${esc(D.user.name)}!</b></h1><p class="greet-date">${icon('calendar')}<span class="gd-long">Today is ${DAYS[d.getDay()]} ${ord(d.getDate())} ${MONTHS[d.getMonth()]} ${d.getFullYear()}</span><span class="gd-short">Today · ${DAYS[d.getDay()].slice(0, 3)}, ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}</span></p></div>
         <div class="top-actions">
           <label class="search">${icon('search')}<span class="sr-only">Search</span><input type="search" placeholder="Search here..." /></label>
           <div class="tb-group">
