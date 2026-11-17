@@ -744,7 +744,7 @@
       </div>
       <div class="hr-body">
         <ul class="hr-facts">
-          <li><span class="hr-fi">${icon('mail')}</span><span class="hr-fv"><small>Email</small><b>${esc(D.user.email)}</b></span><button type="button" class="hr-copy" data-copy="${esc(D.user.email)}" aria-label="Copy email" title="Copy email">${icon('copy')}</button></li>
+          <li><span class="hr-fi">${icon('mail')}</span><span class="hr-fv"><small>Email</small><b>${esc(D.user.email).replace('@', '@<wbr>')}</b></span><button type="button" class="hr-copy" data-copy="${esc(D.user.email)}" aria-label="Copy email" title="Copy email">${icon('copy')}</button></li>
           <li><span class="hr-fi">${icon('phone')}</span><span class="hr-fv"><small>Phone Number</small><b>${esc(D.profile.phone)}</b></span></li>
           <li><span class="hr-fi">${icon('supervisor')}</span><span class="hr-fv"><small>Reporting Manager</small><b>${esc(D.profile.manager)}</b></span></li>
         </ul>
@@ -980,12 +980,12 @@
   };
   // Learning Events hub (Training & Events): one panel — a horizontal "Today" card and a "Coming up" timeline on the left,
   // the month calendar (session days marked; click one to jump to it) with a legend on the right.
-  const LD_SHOW = 2; // timeline cards shown; the rest via "+N more" / View all
+  const LD_SHOW = 2; // timeline cards shown; the rest via View all
   const ldHub = () => {
     const key = (e) => e.date + ' ' + (e.time || '');
     const list = (D.learningEvents || []).slice().sort((x, y) => (key(x) < key(y) ? -1 : 1));
     const todays = list.filter((e) => daysUntil(e.date) === 0), up = list.filter((e) => daysUntil(e.date) > 0);
-    const shown = up.slice(0, LD_SHOW), more = up.length - shown.length, t0 = today0;
+    const shown = up.slice(0, LD_SHOW), t0 = today0;
     const todayCard = `<section class="ld3-today" aria-label="Today's sessions">
         <div class="ld3-day"><b>${String(t0.getDate()).padStart(2, '0')}</b><span>${DAYS[t0.getDay()].slice(0, 3)} · ${MON[t0.getMonth()]}</span></div>
         <div class="ld3-today-main">
@@ -1009,7 +1009,7 @@
         <div class="ld3-main">
           ${todayCard}
           ${shown.length ? `<div class="ld3-up">
-            <p class="ld3-h"><b>Coming up</b>${more > 0 ? `<button type="button" class="ld3-more" data-modal="te-ld">+${more} more${icon('chevR')}</button>` : ''}</p>
+            <p class="ld3-h"><b>Coming up</b></p>
             ${timeline}
           </div>` : timeline}
         </div>
@@ -1022,10 +1022,10 @@
   };
   // Fun @ Work events hub (same design as the Learning Events hub): an "Up next" card with a countdown and a "Coming up"
   // timeline on the left, the month calendar (event days marked; click one to jump to it) with a legend on the right.
-  const FUN_SHOW = 2; // timeline cards shown after "Up next"; the rest via "+N more" / View all
+  const FUN_SHOW = 2; // timeline cards shown after "Up next"; the rest via View all
   const funHub = () => {
     const all = (D.funEvents || []).slice().sort((x, y) => (x.date < y.date ? -1 : 1));
-    const up = all.filter((e) => daysUntil(e.date) >= 0), [n0] = up, rest = up.slice(1, 1 + FUN_SHOW), more = Math.max(0, up.length - 1 - rest.length);
+    const up = all.filter((e) => daysUntil(e.date) >= 0), [n0] = up, rest = up.slice(1, 1 + FUN_SHOW);
     let left;
     if (!n0) {
       left = `<div class="ld3-empty"><span class="ld3-empty-ico">${icon('celebration')}</span><b>No upcoming events</b><p>New celebrations and activities will appear here as soon as they are planned.</p></div>`;
@@ -1041,7 +1041,7 @@
           <div class="fn3-count"><b>${d0}</b><span>${d0 === 1 ? 'day to go' : 'days to go'}</span></div>
         </section>
         <div class="ld3-up">
-          <p class="ld3-h"><b>Coming up</b>${more > 0 ? `<button type="button" class="ld3-more" data-modal="te-fun">+${more} more${icon('chevR')}</button>` : ''}</p>
+          <p class="ld3-h"><b>Coming up</b></p>
           ${rest.length ? `<ol class="ld3-tl">${rest.map((e) => {
             const t = parse(e.date);
             return `<li class="ld3-ev" data-ev="${e.date}">
