@@ -667,7 +667,7 @@
           <div data-pol-empty hidden>${empty('No policies found', 'Try another category or search term', 'doc')}</div></div>
         <div class="ml-pane" aria-hidden="true" inert><ul class="pl-grid">${polItems()}</ul></div>
       </div>`,
-    { right: `<div class="ph-actions pl-actions">${searchBox('Search policies...', 'data-filter-policies', 'sm')}${viewAll('View all', 'modal:policies')}</div>`, ico: 'doc', anchor: 'policies' });
+    { right: `<div class="ph-actions pl-actions">${searchBox('Search policies...', 'data-filter-policies', 'sm')}</div>`, ico: 'doc', anchor: 'policies' });
   function filterPolicies() {
     const root = $('[data-anchor="policies"]');
     if (!root) return;
@@ -1092,14 +1092,20 @@
   // Photo Gallery: album viewer (photo on a blurred copy, arrows, counter, thumbnails), year tabs + that year's album
   // cards, and "View all" (every album, grouped by year). The year shown is always the year of the album in the viewer.
   let tgAlbum = 0, tgPhoto = 0;
+  const TG_SHOW = 4; // album cards shown per year on the page; more than this and "View all" appears
   const teGallery = () => `<div class="tg" data-tg>
       <div class="tg-stage" data-tg-stage aria-live="polite"></div>
       <div class="tg-thumbs" data-tg-thumbs role="group" aria-label="Photos"></div>
-      <div class="tg-albums-head"><div class="tg-years" role="group" aria-label="Album year">${tgYears().map((y) => `<button type="button" class="pill" data-tg-year="${y}" aria-pressed="false">${y}</button>`).join('')}</div>${viewAll('View all', 'modal:albums')}</div>
+      <div class="tg-albums-head">${yearPicker('tg', tgYears(), (TE.albums[tgAlbum] || TE.albums[0] || {}).year)}${viewAll('View all', 'modal:albums')}</div>
       <div class="tg-albums" data-tg-albums></div>
     </div>`;
   // album years, newest first; one album card (page: data-tg-album, "View all" pop-up: data-ta-album)
   const tgYears = () => [...new Set(TE.albums.map((al) => al.year))].sort((x, y) => y - x);
+  // year dropdown in the site's colours: a pill button and a listbox (kind: 'tg' = the page, 'ta' = the "All albums" pop-up)
+  const yearPicker = (kind, years, cur) => `<div class="yp yp-${kind}" data-yp="${kind}">
+      <button type="button" class="yp-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Album year"><span data-yp-val>${cur}</span>${icon('chevR')}</button>
+      <ul class="yp-menu" role="listbox" aria-label="Album year" hidden>${years.map((y) => `<li role="option" tabindex="-1" data-yp-opt="${y}" aria-selected="${y === cur}">${y}${icon('check')}</li>`).join('')}</ul>
+    </div>`;
   const tgCard = (al, i, attr) => `<button type="button" class="tg-album" ${attr}="${i}"${attr === 'data-tg-album' ? ` aria-pressed="${i === tgAlbum}"` : ''}><span class="tg-cover">${img(al.photos[0], '')}</span><span class="tg-album-t"><b>${esc(al.title)}</b><small>${al.count} photos</small></span></button>`;
   // Full-screen viewer for the Photo Gallery (shares tgAlbum / tgPhoto with the page viewer)
   function renderLb(bd) {
@@ -1124,8 +1130,12 @@
       <button type="button" class="tg-expand" data-modal="gallery" aria-label="View photo full screen" title="Expand">${icon('expand')}</button>`;
     $('[data-tg-thumbs]').innerHTML = n < 2 ? '' : al.photos.map((p, i) => `<button type="button" class="tg-thumb" data-tg-photo="${i}" aria-pressed="${i === tgPhoto}" aria-label="Photo ${i + 1}">${img(p, '')}</button>`).join('');
     const yr = al.year, cards = $('[data-tg-albums]');
-    if (cards) cards.innerHTML = TE.albums.map((x, i) => (x.year === yr ? tgCard(x, i, 'data-tg-album') : '')).join('');
-    document.querySelectorAll('[data-tg-year]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.tgYear === yr)));
+    // up to TG_SHOW cards for the year (the album in the viewer always among them); "View all" (panel header) shows every album
+    const ofYear = TE.albums.map((x, i) => [x, i]).filter(([x]) => x.year === yr);
+    const shown = ofYear.slice(0, TG_SHOW);
+    if (!shown.some(([, i]) => i === tgAlbum)) shown[shown.length - 1] = ofYear.find(([, i]) => i === tgAlbum);
+    if (cards) cards.innerHTML = shown.map(([x, i]) => tgCard(x, i, 'data-tg-album')).join('');
+    ypSet($('[data-yp="tg"]'), yr);
   }
 
   // ---------- Pages ----------
@@ -1444,11 +1454,10 @@
         <div class="lb-stage" data-lb-stage aria-live="polite"></div>
         <div class="lb-thumbs" data-lb-thumbs role="group" aria-label="Photos"></div>`;
     } else if (name === 'albums') {
-      // All albums by year: the year chips are tabs (opens on the year shown on the page); an album opens its photos full screen
+      // All albums for the year chosen on the page (the year dropdown above the album cards); an album opens its photos full screen
       const years = tgYears(), at = (y) => TE.albums.map((x, i) => [x, i]).filter(([x]) => x.year === y), cur = (TE.albums[tgAlbum] || {}).year || years[0];
       body = `${head(`<span class="ea-title">All albums</span>`)}
-        <div class="ta-years" role="group" aria-label="Album year">${years.map((y) => `<button type="button" class="pill" data-ta-jump="${y}" aria-pressed="${y === cur}">${y}<span>${at(y).length}</span></button>`).join('')}</div>
-        <div class="modal-body ta-body" data-ta-body>${years.map((y) => { const L = at(y); return `<section class="ta-year" data-ta-year="${y}"${y === cur ? '' : ' hidden'}><h3>${y}<small>${L.length} ${L.length === 1 ? 'album' : 'albums'} · ${L.reduce((s, [x]) => s + x.count, 0)} photos</small></h3><div class="tg-albums">${L.map(([x, i]) => tgCard(x, i, 'data-ta-album')).join('')}</div></section>`; }).join('')}</div>`;
+        <div class="modal-body ta-body" data-ta-body>${years.map((y) => { const L = at(y); return `<section class="ta-year" data-ta-year="${y}"${y === cur ? '' : ' hidden'}><h3>${y}</h3><div class="tg-albums">${L.map(([x, i]) => tgCard(x, i, 'data-ta-album')).join('')}</div></section>`; }).join('')}</div>`;
     } else if (name === 'te-ld' || name === 'te-fun') {
       const ttl = name === 'te-ld' ? 'Learning &amp; Development Events' : 'Fun @ Work Events';
       body = `${head(`<span class="ea-title">${ttl}<small data-tev-count></small></span>`, `<div class="year-nav tev-year"><button type="button" data-tev-step="-1" aria-label="Previous year">${icon('chevL')}</button><b data-tev-year></b><button type="button" data-tev-step="1" aria-label="Next year">${icon('chevR')}</button></div>`)}
@@ -1506,8 +1515,7 @@
       const tevStep = e.target.closest('[data-tev-step]'), tevJump = e.target.closest('[data-tev-jump]');
       if (tevStep && !tevStep.disabled) { bd.dataset.year = +bd.dataset.year + +tevStep.dataset.tevStep; renderTev(bd); return; }
       if (tevJump && !tevJump.disabled) { const sec = $(`[data-tev-month="${tevJump.dataset.tevJump}"]`, bd), b = $('[data-tev-body]', bd); if (sec) b.scrollTo({ top: sec.offsetTop - b.offsetTop, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); return; }
-      const taJump = e.target.closest('[data-ta-jump]'), taAl = e.target.closest('[data-ta-album]');
-      if (taJump) { const y = taJump.dataset.taJump; bd.querySelectorAll('[data-ta-jump]').forEach((c) => c.setAttribute('aria-pressed', String(c === taJump))); bd.querySelectorAll('[data-ta-year]').forEach((s) => { s.hidden = s.dataset.taYear !== y; }); $('[data-ta-body]', bd).scrollTop = 0; return; }
+      const taAl = e.target.closest('[data-ta-album]');
       if (taAl) { tgAlbum = +taAl.dataset.taAlbum; tgPhoto = 0; renderTg(); openModal('gallery', $('.tg-expand')); return; }
       const saTag = e.target.closest('[data-sa-tag]');
       if (saTag) { saTag.parentElement.querySelectorAll('[data-sa-tag]').forEach((c) => c.setAttribute('aria-pressed', String(c === saTag))); renderSa(bd); return; }
@@ -1753,8 +1761,6 @@
     if (wcBtn) { wcTab = wcBtn.dataset.wcTab; renderWc(); return; }
     const erpBtn = e.target.closest('[data-erp-q]');
     if (erpBtn) { erpQ = erpBtn.dataset.erpQ; renderErp(); return; }
-    const tgYr = e.target.closest('[data-tg-year]');
-    if (tgYr) { tgAlbum = Math.max(0, TE.albums.findIndex((x) => x.year === +tgYr.dataset.tgYear)); tgPhoto = 0; renderTg(); $(`[data-tg-year="${tgYr.dataset.tgYear}"]`)?.focus(); return; }
     const tgAl = e.target.closest('[data-tg-album]'), tgPh = e.target.closest('[data-tg-photo]'), tgSt = e.target.closest('[data-tg-step]');
     if (tgAl || tgPh || tgSt) {
       if (tgAl) { tgAlbum = +tgAl.dataset.tgAlbum; tgPhoto = 0; } else if (tgPh) tgPhoto = +tgPh.dataset.tgPhoto; else tgPhoto += +tgSt.dataset.tgStep;
@@ -1843,6 +1849,47 @@
     if (e.target.closest('[data-close-nav]')) document.body.classList.remove('nav-open');
   });
 
+  // Year dropdown (Albums page + "All albums" pop-up). Captured at the document so it runs before pop-up / page handlers.
+  function ypSet(yp, y) {
+    if (!yp) return;
+    $('[data-yp-val]', yp).textContent = y;
+    yp.querySelectorAll('[data-yp-opt]').forEach((o) => o.setAttribute('aria-selected', String(o.dataset.ypOpt === String(y))));
+  }
+  function ypOpen(yp, open) {
+    const btn = $('.yp-btn', yp), menu = $('.yp-menu', yp);
+    btn.setAttribute('aria-expanded', String(open));
+    menu.hidden = !open;
+    if (open) ($('[aria-selected="true"]', menu) || $('[data-yp-opt]', menu)).focus();
+  }
+  function ypPick(yp, y) {
+    ypSet(yp, y);
+    ypOpen(yp, false);
+    $('.yp-btn', yp).focus();
+    if (yp.dataset.yp === 'tg') { tgAlbum = Math.max(0, TE.albums.findIndex((x) => x.year === +y)); tgPhoto = 0; renderTg(); }
+    else { const bd = yp.closest('.modal-backdrop'); bd.querySelectorAll('[data-ta-year]').forEach((s) => { s.hidden = s.dataset.taYear !== String(y); }); $('[data-ta-body]', bd).scrollTop = 0; }
+  }
+  document.addEventListener('click', (e) => {
+    const yp = e.target.closest('[data-yp]');
+    document.querySelectorAll('[data-yp] .yp-btn[aria-expanded="true"]').forEach((b) => { if (b.closest('[data-yp]') !== yp) ypOpen(b.closest('[data-yp]'), false); });
+    if (!yp) return;
+    e.stopPropagation();
+    const opt = e.target.closest('[data-yp-opt]');
+    if (opt) return ypPick(yp, opt.dataset.ypOpt);
+    if (e.target.closest('.yp-btn')) ypOpen(yp, $('.yp-btn', yp).getAttribute('aria-expanded') !== 'true');
+  }, true);
+  document.addEventListener('keydown', (e) => {
+    const yp = e.target.closest && e.target.closest('[data-yp]');
+    if (!yp) return;
+    const open = $('.yp-btn', yp).getAttribute('aria-expanded') === 'true';
+    const opts = [...yp.querySelectorAll('[data-yp-opt]')], i = opts.indexOf(document.activeElement);
+    if (!open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); ypOpen(yp, true); return; }
+    if (!open) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); ypOpen(yp, false); $('.yp-btn', yp).focus(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); opts[Math.min(opts.length - 1, i + 1)].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); opts[Math.max(0, i - 1)].focus(); }
+    else if ((e.key === 'Enter' || e.key === ' ') && i >= 0) { e.preventDefault(); ypPick(yp, opts[i].dataset.ypOpt); }
+    else if (e.key === 'Tab') ypOpen(yp, false);
+  }, true);
   document.addEventListener('input', (e) => {
     const q = e.target.value.trim().toLowerCase();
     if (e.target.matches('[data-filter-jobs]')) {

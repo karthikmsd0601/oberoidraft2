@@ -3069,3 +3069,52 @@ html.theme-switch, html.theme-switch *, html.theme-switch *::before, html.theme-
   .sa-bar .pill-row::-webkit-scrollbar { display: none; }
   .sa-bar .pill { flex: none; }
 }
+
+/* Albums: year dropdown (a pill-shaped select with a chevron) */
+.tg-year-sel { position: relative; display: inline-flex; align-items: center; }
+.tg-year-sel select { -webkit-appearance: none; appearance: none; height: 34px; min-width: 104px; padding: 0 36px 0 16px; border: 1px solid var(--grey-3, #e2ddd6); border-radius: 999px;
+  background: var(--white); color: var(--text-strong); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: border-color .2s ease, box-shadow .2s ease; }
+.tg-year-sel select:hover { border-color: var(--brown); }
+.tg-year-sel select:focus-visible { outline: none; border-color: var(--brown); box-shadow: 0 0 0 3px rgba(156, 109, 65, 0.2); }
+.tg-year-sel svg { position: absolute; right: 12px; width: 15px; height: 15px; color: var(--brown); transform: rotate(90deg); pointer-events: none; }
+
+/* "All albums" pop-up: the year dropdown sits in the header, before Close */
+.modal-albums .modal-head { gap: 14px; }
+.ta-year-sel { margin-left: auto; }
+.modal-albums .modal-close { margin-left: auto; } /* Close sits at the right of the header */
+
+/* Albums: "View all" is hidden unless the chosen year has more than 4 albums */
+.tg-albums-head [data-modal="albums"][hidden] { display: none; }
+
+/* ======================================================================
+   Year dropdown (Albums + "All albums"): site colours — cream pill, bronze chevron, brown selected row with a tick
+   ====================================================================== */
+.yp { position: relative; display: inline-block; }
+.yp-btn { display: inline-flex; align-items: center; gap: 12px; height: 36px; padding: 0 12px 0 18px; border: 1px solid var(--award-line, #e3cfb3); border-radius: 999px;
+  background: linear-gradient(180deg, #fffaf3, #f8efe3); color: var(--brown-ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 14px -12px rgba(109, 73, 42, 0.6); transition: border-color .2s ease, box-shadow .2s ease; }
+.yp-btn svg { width: 16px; height: 16px; color: var(--brown); transform: rotate(90deg); transition: transform .25s var(--ease); }
+.yp-btn:hover { border-color: var(--brown); }
+.yp-btn:focus-visible { outline: none; border-color: var(--brown); box-shadow: 0 0 0 3px rgba(156, 109, 65, 0.2); }
+.yp-btn[aria-expanded="true"] { border-color: var(--brown); box-shadow: 0 0 0 3px rgba(156, 109, 65, 0.16); }
+.yp-btn[aria-expanded="true"] svg { transform: rotate(-90deg); }
+.yp-menu { position: absolute; top: calc(100% + 8px); left: 0; z-index: 40; min-width: max(100%, 132px); margin: 0; padding: 6px; list-style: none;
+  border: 1px solid var(--grey-4); border-radius: 14px; background: var(--white); box-shadow: 0 22px 40px -20px rgba(60, 40, 20, 0.45), 0 2px 6px rgba(60, 40, 20, 0.06);
+  animation: ypIn .16s ease; }
+.yp-menu[hidden] { display: none; }
+@keyframes ypIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.yp-menu li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 10px 8px 12px; border-radius: 10px;
+  color: var(--text-strong); font-size: 14px; font-weight: 600; cursor: pointer; transition: background .15s ease; }
+.yp-menu li + li { margin-top: 2px; }
+.yp-menu li:hover, .yp-menu li:focus { outline: none; background: #f6eee4; }
+.yp-menu li svg { width: 15px; height: 15px; opacity: 0; }
+.yp-menu li[aria-selected="true"] { background: linear-gradient(145deg, #b8854c, #8c5a28); color: #fff8ee; }
+.yp-menu li[aria-selected="true"] svg { opacity: 1; }
+.yp-ta .yp-menu { left: auto; right: 0; }
+.modal-albums .modal-head { position: relative; z-index: 5; }
+.yp-ta { margin-left: auto; }
+[data-theme="dark"] .yp-btn { background: linear-gradient(180deg, #2c2621, #241f1b); border-color: rgba(226, 185, 138, 0.35); color: #f3e6d2; }
+[data-theme="dark"] .yp-btn svg { color: #e2b98a; }
+[data-theme="dark"] .yp-menu { border-color: rgba(226, 185, 138, 0.18); box-shadow: 0 22px 40px -20px rgba(0, 0, 0, 0.8); }
+[data-theme="dark"] .yp-menu li:hover, [data-theme="dark"] .yp-menu li:focus { background: rgba(226, 185, 138, 0.1); }
+@media (prefers-reduced-motion: reduce) { .yp-menu { animation: none; } .yp-btn svg { transition: none; } }

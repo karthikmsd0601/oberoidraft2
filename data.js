@@ -342,6 +342,10 @@ window.APP_DATA = {
       { title: 'Ganesh Chaturthi 2026', year: 2026, count: 12, photos: ['images/gallery/ganesh.jpg'] },
       { title: "ORL's Got Talent 2026", year: 2026, count: 15, photos: ['images/gallery/talent.jpg'] },
       { title: 'Independence Day 2026', year: 2026, count: 7, photos: ['images/gallery/independence.jpg'] },
+      // SAMPLE 2026 albums (not from the live site; stock photos) — seen through View all (the page shows four per year).
+      { title: 'Annual Sports Day 2026', year: 2026, count: 18, sample: true, photos: [PHOTO('1461896836934-ffe607ba8211'), PHOTO('1517649763962-0c623066013b'), PHOTO('1552674605-db6ffd4facb5')] },
+      { title: 'Wellness Week 2026', year: 2026, count: 10, sample: true, photos: [PHOTO('1529156069898-49953e39b3ac'), PHOTO('1490474418585-ba9bad8fd0ea')] },
+      { title: 'Quarterly Town Hall 2026', year: 2026, count: 12, sample: true, photos: [PHOTO('1544531586-fde5298cdd40'), PHOTO('1515187029135-18ee286d815b'), PHOTO('1475721027785-f74eccf877e2')] },
       // SAMPLE albums (not from the live site): stock event photos (Unsplash) so the 2025 / 2024 tabs and "View all" have content.
       { title: 'Annual Day 2025', year: 2025, count: 24, sample: true, photos: [PHOTO('1514525253161-7a46d19cd819'), PHOTO('1540575467063-178a50c2df87'), PHOTO('1533174072545-7a4b6ad7a6c3'), PHOTO('1492684223066-81342ee5ff30')] },
       { title: 'Diwali Celebrations 2025', year: 2025, count: 18, sample: true, photos: [PHOTO('1527529482837-4698179dc6ce'), PHOTO('1511795409834-ef04bbd61622'), PHOTO('1519671482749-fd09be7ccebf')] },
