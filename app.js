@@ -1320,7 +1320,8 @@
     let shown = 0;
     bd.querySelectorAll('[data-sa-item]').forEach((c) => { c.hidden = !((tag === 'All' || c.dataset.tag === tag) && c.textContent.toLowerCase().includes(q)); if (!c.hidden) shown += 1; });
     const [one, many] = $('.modal-newsletters', bd) ? ['article', 'articles'] : ['story', 'stories'];
-    $('[data-sa-count]', bd).textContent = `${shown} ${shown === 1 ? one : many}`;
+    const saCount = $('[data-sa-count]', bd);
+    if (saCount) saCount.textContent = `${shown} ${shown === 1 ? one : many}`;
     $('[data-sa-empty]', bd).hidden = shown > 0;
   }
 
@@ -1432,7 +1433,7 @@
       const tags = [...new Set(IC.stories.map((s) => s.tag))];
       const count = (t) => (t === 'All' ? IC.stories.length : IC.stories.filter((s) => s.tag === t).length);
       body = `${head('<span class="ea-title">All People Stories<small>Every story shared by our colleagues</small></span>', `<label class="field-search sm mwc-search">${icon('search')}<span class="sr-only">Search stories</span><input type="search" placeholder="Search stories..." data-sa-search /></label>`)}
-        <div class="sa-bar"><div class="pill-row" role="group" aria-label="Category">${['All', ...tags].map((t, i) => `<button type="button" class="pill" data-sa-tag="${esc(t)}" aria-pressed="${i === 0}">${esc(t)}<span>${count(t)}</span></button>`).join('')}</div><p class="sa-count" data-sa-count aria-live="polite"></p></div>
+        <div class="sa-bar"><div class="pill-row" role="group" aria-label="Category">${['All', ...tags].map((t, i) => `<button type="button" class="pill" data-sa-tag="${esc(t)}" aria-pressed="${i === 0}">${esc(t)}</button>`).join('')}</div></div>
         <div class="modal-body sa-body"><div class="sa-grid">${IC.stories.map((st, i) => pjCard(st, i, 'tile', ` data-sa-item data-tag="${esc(st.tag)}" data-from="archive"`)).join('')}</div>
           <div data-sa-empty hidden>${empty('No stories found', 'Try another category or search term', 'article')}</div></div>`;
     } else if (name === 'policies') {
