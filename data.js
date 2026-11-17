@@ -51,30 +51,36 @@ window.APP_DATA = {
     // tone = colour of the soft glow under the card. The label is also present as hidden text for screen readers.
     // Dark mode: cardDark = the same card in dark (same photo and layout; from the wave down a see-through dark glass
     // gradient — clear at the wave, deepening to dark — with gold icons, warm-white labels, dark button, gold chevron).
+    // Home uses images/tiles/clean: the same cards with the drawn icon, label and arrow erased (icon, label and arrow are drawn in HTML).
     tiles: [
-      // Celebrations / Everyday Hero recoloured to the Today's Menu peach, Videos to the Applications grey-green.
-      { label: 'Celebrations', card: 'images/tiles/card-celebrations.png', cardDark: 'images/tiles/dark/card-celebrations.png', w: 369, h: 321, tone: 'peach', target: 'celebrations' },
-      { label: "Today's Menu", card: 'images/tiles/card-todays-menu.png', cardDark: 'images/tiles/dark/card-todays-menu.png', w: 346, h: 320, tone: 'peach', target: 'todays-menu' },
-      { label: 'Videos', card: 'images/tiles/card-videos.png', cardDark: 'images/tiles/dark/card-videos.png', w: 346, h: 320, tone: 'sage', target: 'video-gallery' },
-      { label: 'Applications', card: 'images/tiles/card-applications.png', cardDark: 'images/tiles/dark/card-applications.png', w: 340, h: 320, tone: 'sage', target: '' },
-      { label: 'Everyday Hero', card: 'images/tiles/card-everyday-hero.png', cardDark: 'images/tiles/dark/card-everyday-hero.png', w: 349, h: 320, tone: 'peach', target: 'everyday-hero' },
+      // Celebrations recoloured to the Today's Menu peach, Videos to the Applications grey-green.
+      { label: 'Celebrations', card: 'images/tiles/clean/card-celebrations.png', cardDark: 'images/tiles/clean/dark/card-celebrations.png', w: 369, h: 321, tone: 'peach', target: 'celebrations', icon: 'celebrations' },
+      { label: "Today's Menu", card: 'images/tiles/clean/card-todays-menu.png', cardDark: 'images/tiles/clean/dark/card-todays-menu.png', w: 346, h: 320, tone: 'peach', target: 'todays-menu', icon: 'menu' },
+      { label: 'Videos', card: 'images/tiles/clean/card-videos.png', cardDark: 'images/tiles/clean/dark/card-videos.png', w: 346, h: 320, tone: 'sage', target: 'video-gallery', icon: 'videos' },
+      { label: 'Applications', card: 'images/tiles/clean/card-applications.png', cardDark: 'images/tiles/clean/dark/card-applications.png', w: 340, h: 320, tone: 'sage', target: '', icon: 'apps' },
     ],
+    // SAMPLE event (not from the live site) for the Home "Learning Events" card — replace with the real next session.
+    learningEvent: {
+      date: '2026-11-18', time: '2:30 PM – 4:00 PM', title: 'Scaffolding Safety Workshop', place: 'Three Sixty West',
+      host: 'EHS Team',
+      desc: 'A hands-on session on the safe erection, inspection and everyday use of scaffolds on site.',
+    },
     birthdays: {
       title: 'Birthdays',
       sub: "Best wishes to our birthday stars! Here's to a fantastic day and year ahead",
       bg: PHOTO('1627545195487-d088963ecdfb'), // Home greeting panel background (Unsplash stock photo: gold-topped cake)
-      // First name is cut off in the production screenshot ("Manleenkaur ...").
+      // First name is cut off in the production screenshot ("Manleenkaur ..."). dept = the chip on each card (set here from the role).
       people: [
-        { name: 'Manleenkaur', role: 'Assistant Manager - Customer Service', photo: FACE('1628726987013-db899232027c') },
-        { name: 'Yogesh Pawar', role: 'Senior Executive - Fixed Assets', photo: FACE('1649433658557-54cf58577c68') },
+        { name: 'Manleenkaur', role: 'Assistant Manager - Customer Service', dept: 'Customer Service', photo: FACE('1628726987013-db899232027c') },
+        { name: 'Yogesh Pawar', role: 'Senior Executive - Fixed Assets', dept: 'Finance', photo: FACE('1649433658557-54cf58577c68') },
       ],
-      // SAMPLE entries (not from production), added on request to fill the "View all" pop-up only.
+      // SAMPLE entries (not from production), added on request: the first two fill Home's row of four; all show in "View all".
       more: [
-        { name: 'Priya Deshmukh', role: 'Executive - Human Resources', photo: FACE('1573497019707-1c04de26e58c') },
-        { name: 'Rahul Mehta', role: 'Manager - Sales', photo: FACE('1600878459138-e1123b37cb30') },
-        { name: 'Sneha Kulkarni', role: 'Senior Executive - Accounts', photo: FACE('1655249493799-9cee4fe983bb') },
-        { name: 'Amit Joshi', role: 'Assistant Manager - Projects', photo: FACE('1568585105565-e372998a195d') },
-        { name: 'Neha Iyer', role: 'Executive - Marketing', photo: FACE('1577878317861-2a54eb46ed42') },
+        { name: 'Priya Deshmukh', role: 'Executive - Human Resources', dept: 'HRD', photo: FACE('1573497019707-1c04de26e58c') },
+        { name: 'Rahul Mehta', role: 'Manager - Sales', dept: 'Sales', photo: FACE('1600878459138-e1123b37cb30') },
+        { name: 'Sneha Kulkarni', role: 'Senior Executive - Accounts', dept: 'Finance', photo: FACE('1655249493799-9cee4fe983bb') },
+        { name: 'Amit Joshi', role: 'Assistant Manager - Projects', dept: 'Projects', photo: FACE('1568585105565-e372998a195d') },
+        { name: 'Neha Iyer', role: 'Executive - Marketing', dept: 'Marketing', photo: FACE('1577878317861-2a54eb46ed42') },
       ],
     },
     // Sixth category is cut off in the screenshot ("Le… De…"); assumed Learning & Development.
@@ -208,7 +214,7 @@ window.APP_DATA = {
     img: 'images/banner-festive.jpg',
     alt: "Festive Greetings From The Chairman's Desk",
     lines: ['Festive Greetings', "From The Chairman's Desk"], // the banner's own wording, now set as live text
-    cta: 'View More',
+    cta: 'Read Now!',
     // Chairman's photo region inside the original artwork (fractions of the image), used to show the same photo.
     photo: { x0: 0.826, x1: 0.934, y0: 0.15, y1: 0.71, aspect: 3605 / 800 },
   },
@@ -227,7 +233,7 @@ window.APP_DATA = {
     },
     {
       title: 'Oberoi Mall and Sky City Mall win top honours at the National Awards for Excellence in shopping malls',
-      cta: 'View More',
+      cta: 'Read Now!',
       bg: SP + '/sites/intranetuat/Lists/HomePage%20%20Events/Attachments/9/Reserved_ImageAttachment_[15]_[BackgroundImage][32]_[55955b9580784fd7bc5a4941e65148b6][1]_[7].png',
       // Stock photo (Unsplash) in place of the SharePoint event image, which needs a sign-in to load.
       img: PHOTO('1614521084980-811d04f6c6cb'),
@@ -336,6 +342,13 @@ window.APP_DATA = {
       { title: 'Ganesh Chaturthi 2026', year: 2026, count: 12, photos: ['images/gallery/ganesh.jpg'] },
       { title: "ORL's Got Talent 2026", year: 2026, count: 15, photos: ['images/gallery/talent.jpg'] },
       { title: 'Independence Day 2026', year: 2026, count: 7, photos: ['images/gallery/independence.jpg'] },
+      // SAMPLE albums (not from the live site): stock event photos (Unsplash) so the 2025 / 2024 tabs and "View all" have content.
+      { title: 'Annual Day 2025', year: 2025, count: 24, sample: true, photos: [PHOTO('1514525253161-7a46d19cd819'), PHOTO('1540575467063-178a50c2df87'), PHOTO('1533174072545-7a4b6ad7a6c3'), PHOTO('1492684223066-81342ee5ff30')] },
+      { title: 'Diwali Celebrations 2025', year: 2025, count: 18, sample: true, photos: [PHOTO('1527529482837-4698179dc6ce'), PHOTO('1511795409834-ef04bbd61622'), PHOTO('1519671482749-fd09be7ccebf')] },
+      { title: 'Leadership Summit 2025', year: 2025, count: 11, sample: true, photos: [PHOTO('1523580494863-6f3031224c94'), PHOTO('1559223607-a43c990c692c'), PHOTO('1505373877841-8d25f7d46678')] },
+      { title: "Founders' Day 2024", year: 2024, count: 16, sample: true, photos: [PHOTO('1464366400600-7168b8af9bc3'), PHOTO('1530103862676-de8c9debad1d'), PHOTO('1528605248644-14dd04022da1')] },
+      { title: 'Team Offsite 2024', year: 2024, count: 20, sample: true, photos: [PHOTO('1517457373958-b7bdd4587205'), PHOTO('1543269865-cbf427effbad'), PHOTO('1521737604893-d14cc237f11d'), PHOTO('1522071820081-009f0129c71c')] },
+      { title: 'Town Hall 2024', year: 2024, count: 9, sample: true, photos: [PHOTO('1531058020387-3be344556be6'), PHOTO('1556761175-5973dc0f32e7')] },
     ],
   },
 
@@ -516,8 +529,9 @@ window.APP_DATA = {
       { id: 'people-stories', label: 'People Stories' },
       { id: 'newsletter', label: 'Newsletter' },
     ],
+    // tag: the story's category — shown on its card and the reading view, and the filter chips in "View all stories".
     stories: [
-      { title: 'A Three-Day Escape to Hyderabad Trains, Biryani & Timeless Streets', tag: 'Travel', img: 'images/stories/hyderabad.jpg',
+      { title: 'A Three-Day Escape to Hyderabad Trains, Biryani & Timeless Streets', tag: 'Food & Culture', img: 'images/stories/hyderabad.jpg',
         // Read-more page (from the live pop-up screenshot): date, photo gallery (cut from the screenshot, so the 2nd and 3rd are
         // thumbnail-sized) and the full text. The other stories only have their card excerpt so far.
         date: 'January 28, 2026',
@@ -532,17 +546,17 @@ window.APP_DATA = {
           'The trip was short, but it was exactly what I needed—a much-needed break from work, and a quiet reminder that sometimes, traveling alone is the most fulfilling journey of all.',
         ],
         text: 'Sometimes, all you need is a short break to reset your mind. For me, that break came in the form of a spontaneous three-day solo trip to Hyderabad. I took three days off from work and boarded an early-morning train from Mumbai. The journey covered more than 800 kilometres, and traveling alone made it even more special. With no rush and no fixed conversations, I had time to simply watch the world pass by and enjoy my own company as the' },
-      { title: 'Finding Peace in the Chaos A 4,000 km Journey of Faith, Friendship, and Determination', tag: 'Travel', img: 'images/stories/ujjain.jpg',
+      { title: 'Finding Peace in the Chaos A 4,000 km Journey of Faith, Friendship, and Determination', tag: 'Pilgrimage', img: 'images/stories/ujjain.jpg',
         text: 'What started as a casual idea soon turned into a once-in-a-lifetime journey. Covering nearly 4,000 km by road, our route stretched from Mumbai to Ujjain and Indore, onward to' },
-      { title: 'A Spiritual and Sensory Journey in Amritsar', tag: 'Travel', img: 'images/stories/amritsar.jpg',
+      { title: 'A Spiritual and Sensory Journey in Amritsar', tag: 'Heritage', img: 'images/stories/amritsar.jpg',
         text: "The city offers a feast for the senses, from the Golden Temple's divine serenity to the patriotism at the Wagah Border. Get ready for a journey through history, devotion," },
-      { title: 'My First Solo Trip to Delhi - A Journey of Discovery', tag: 'Travel', img: 'images/stories/delhi.jpg', portrait: true,
+      { title: 'My First Solo Trip to Delhi - A Journey of Discovery', tag: 'Solo Trip', img: 'images/stories/delhi.jpg', portrait: true,
         text: "My first solo trip to Delhi was a rollercoaster of excitement, nerves, and discovery. From the moment I landed, the city's vibrant energy embraced me. A magnetic mix of history," },
-      { title: 'Seoul has my Soul - My 11 Day South Korea Adventure', tag: 'Travel', img: 'images/stories/south-korea.jpg',
+      { title: 'Seoul has my Soul - My 11 Day South Korea Adventure', tag: 'International', img: 'images/stories/south-korea.jpg',
         text: 'In April 2025, I visited South Korea with a group of 14 and spent 11 unforgettable days exploring the culture, cuisine, and vibrant cities of Seoul, Busan, and Jeju Island. We' },
-      { title: 'A Short Journey, A Long-Lasting Peace', tag: 'Travel', img: 'images/stories/short-journey.jpg',
+      { title: 'A Short Journey, A Long-Lasting Peace', tag: 'Reflections', img: 'images/stories/short-journey.jpg',
         text: "I've always believed that travel doesn't have to be long to be meaningful. Being a working professional with limited time off, I usually opt for short, purposeful trips that help me" },
-      { title: "An Unexpected Adventure through Bhutan's Mountains and Wonders", tag: 'Travel', img: 'images/stories/bhutan.jpg',
+      { title: "An Unexpected Adventure through Bhutan's Mountains and Wonders", tag: 'Adventure', img: 'images/stories/bhutan.jpg',
         text: 'Some of the best adventures begin with the unexpected. My wife and I had planned to visit our friends in the North East Frontier Area (NEFA) in May, but after two days, sudden' },
     ],
     newsletters: [

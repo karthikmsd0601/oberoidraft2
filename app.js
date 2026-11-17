@@ -1,6 +1,11 @@
 // People First — UI redesign prototype (v4). Presentation only: no buttons submit, save, or send anything.
 (function () {
   const D = window.APP_DATA;
+  // Preview: ?preview=no-ld-events shows the site as if there were no Learning & Development sessions (data unchanged)
+  const PREVIEW = new URLSearchParams(location.search).get('preview');
+  if (PREVIEW === 'no-ld-events' || PREVIEW === 'no-events') { D.learningEvents = []; if (D.home) D.home.learningEvent = null; }
+  // ?preview=no-fun-events: as if there were no upcoming Fun @ Work events; ?preview=no-events: both sections empty
+  if (PREVIEW === 'no-fun-events' || PREVIEW === 'no-events') D.funEvents = (D.funEvents || []).filter((e) => new Date(e.date) < new Date(new Date().toDateString()));
   const $ = (sel, el = document) => el.querySelector(sel);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
@@ -241,7 +246,7 @@
     const crop = `background-image:url('${D.festive.img}');aspect-ratio:${((fw * p.aspect) / fh).toFixed(4)};` +
       `background-size:auto ${(100 / fh).toFixed(2)}%;background-position:${((p.x0 / (1 - fw)) * 100).toFixed(2)}% ${((p.y0 / (1 - fh)) * 100).toFixed(2)}%`;
     return `<div class="slide festive fv">
-      <div class="fv-copy"><h3>${esc(D.festive.lines[0])}</h3><p>${esc(D.festive.lines[1])}</p>
+      <div class="fv-copy"><h3>${esc(D.festive.lines[0])}<br />${esc(D.festive.lines[1])}</h3>
         <button type="button" class="btn btn-primary fv-cta">${esc(D.festive.cta)}${icon('arrowR')}</button></div>
       <span class="fv-arc" aria-hidden="true"></span><span class="fv-panel" aria-hidden="true"></span>
       <div class="fv-photo" role="img" aria-label="${esc(D.festive.alt)}" style="${crop}"></div>
@@ -332,10 +337,19 @@
       <path d="M0 230C260 130 520 320 820 190S1130 70 1200 110" fill="none" stroke="#d9b56a" stroke-width="1.4" opacity=".55"/>
       <path d="M0 80C240 20 470 130 700 60S1060 -10 1200 40" fill="none" stroke="#e8cf98" stroke-width="1.2" opacity=".5"/>
       <path d="M700 320C820 250 1000 230 1200 260" fill="none" stroke="#d9b56a" stroke-width="1.6" opacity=".45"/></svg>`;
-  // Columns keep each card's design width ratio (--cols); narrow screens use fixed widths at the same ratio (--cols-px).
-  const dashShortcuts = () => `<div class="pc-row" style="--cols:${H.tiles.map((t) => `${t.w}fr`).join(' ')};--cols-px:${H.tiles.map((t) => `${Math.round(t.w * 0.62)}px`).join(' ')}">${PC_WAVES}${H.tiles.map((t) => {
-    const attrs = `class="pc-card pc-${t.tone}" style="--w:${t.w};--h:${t.h};--card:url('${esc(t.card)}');--card-dark:url('${esc(t.cardDark || t.card)}')"`;
-    const inner = `<span class="sr-only">${esc(t.label)}</span>`;
+  // Shortcut cards: each card image is the original design card (photo, wave and glass gradient) with its drawn icon,
+  // label and arrow erased (images/tiles/clean); the icon, label and arrow are drawn here, sized in cqw so all cards match.
+  const PC_ICONS = {
+    celebrations: '<path d="M3 20.5h18"/><rect x="5" y="12" width="14" height="8.5" rx="1.8"/><path d="M5 15.6c1.2 1.1 2.3 1.1 3.5 0s2.3-1.1 3.5 0 2.3 1.1 3.5 0 2.3-1.1 3.5 0"/><path d="M12 12V8.6"/><path d="M12 3.8c1 1 1.4 2 0 3.3-1.4-1.3-1-2.3 0-3.3z"/>',
+    menu: '<path d="M5.5 3v5.2a2.2 2.2 0 0 0 4.4 0V3M7.7 3v18"/><ellipse cx="16.6" cy="7.2" rx="2.9" ry="4.2"/><path d="M16.6 11.4V21"/>',
+    videos: '<rect x="3" y="4.5" width="18" height="15" rx="3.2"/><path d="M10.2 9.3v5.4l4.6-2.7z"/>',
+    apps: '<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/>',
+  };
+  const dashShortcuts = () => `<div class="pc-row" style="--n:${H.tiles.length}">${PC_WAVES}${H.tiles.map((t) => {
+    const attrs = `class="pc-card pc-${t.tone}" style="--card:url('${esc(t.card)}');--card-dark:url('${esc(t.cardDark || t.card)}')"`;
+    const inner = ``
+      + `<span class="pc-body"><span class="pc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${PC_ICONS[t.icon] || ''}</svg></span><span class="pc-label">${esc(t.label)}</span></span>`
+      + `<span class="pc-go" aria-hidden="true">${icon('chevR')}</span>`;
     return t.target ? `<a ${attrs} href="#home/${t.target}">${inner}</a>` : `<button type="button" ${attrs}>${inner}</button>`;
   }).join('')}</div>`;
 
@@ -349,8 +363,8 @@
       <button type="button" class="btn btn-primary btn-xs">Wish Now!</button></li>`;
   // photo = Home panel: stock birthday photo under a brown overlay instead of the beige gradient.
   const bdayGreeting = (photo = false) => `<div class="bd-intro${photo && H.birthdays.bg ? ' bd-photo' : ''}"${photo && H.birthdays.bg ? ` style="--bd-bg:url('${esc(H.birthdays.bg)}')"` : ''}>${ORNAMENT}<p>${esc(H.birthdays.sub)}</p>${ORNAMENT}</div>`;
-  const dashBirthdays = () => secPanel('celebrations', H.birthdays.title, `<div class="bd-layout">${bdayGreeting(true)}
-    <ul class="bd-list">${H.birthdays.people.map((p) => bdayCard(p)).join('')}</ul></div>`, { right: viewAll('View all', 'modal:birthdays'), ico: 'cake', cls: 'bd-w' });
+  // Home Birthdays: one row of four colleague cards (same design as HR "Wish Your Colleagues", with the department chip)
+  const dashBirthdays = () => secPanel('celebrations', H.birthdays.title, `<ul class="bd-list wc-list">${H.birthdays.people.concat(H.birthdays.more || []).slice(0, 4).map((p) => wcCard(p, 'cake')).join('')}</ul>`, { right: viewAll('View all', 'modal:birthdays'), ico: 'cake', cls: 'bd-w' });
 
   // Today's Menu (Home + Weekly Menu pop-up): illustrated meal tabs and a clean two-column dish list
   // with hairline dividers and right-aligned quantities.
@@ -393,7 +407,7 @@
   const rcPhoto = (name) => ((RC.photos || {})[name] ? img(RC.photos[name], name, 'avatar') : avatar(name));
   const rcAv = (name) => `<span class="rc-av">${rcPhoto(name)}<span class="rc-medal">${icon('group')}</span></span>`;
   const rcSlides = () => [
-    ['rc-erp', `<div class="rc-erp-intro"><span class="rc-badge">${icon('verified')}</span>
+    ['rc-erp', `<div class="rc-erp-intro">
         <h2>${esc(RC.erp.title)}</h2>
         <p class="rc-period">${icon('calendar')}${esc(RC.erp.period)}</p>
         <button type="button" class="rc-link">${esc(RC.erp.cta)}${icon('arrowR')}</button></div>
@@ -406,8 +420,8 @@
           <p class="rc-meta"><span class="rc-mico">${icon('campaign')}</span><span>Nominated By : <b>${esc(h.nominatedBy)}</b></span></p>
           <p class="rc-meta"><span class="rc-mico">${icon('business')}</span><span>Department : <b>${esc(h.dept)}</b></span></p></div></article>`).join('')}</div>`]),
     ['rc-spot', `<div class="rc-spot-tile">${rcTitle(' stack')}${rcAv(RC.spotlight.name)}</div>
-      <div class="rc-spot-body"><div class="rc-spot-head"><h3>${esc(RC.spotlight.name)}</h3><span class="rc-chip">${icon('business')}${esc(RC.spotlight.dept)}</span></div>
-        <blockquote><svg class="rc-qmark" viewBox="0 0 40 32" aria-hidden="true"><path d="M0 32V19C0 8.5 5.6 2.2 16.8 0l1.8 4.6C12.3 6.4 9.3 10 9 15h8v17zm22 0V19C22 8.5 27.6 2.2 38.8 0l1.8 4.6C34.3 6.4 31.3 10 31 15h8v17z"/></svg>“${esc(RC.spotlight.quote)}”</blockquote>
+      <div class="rc-spot-body"><div class="rc-spot-head"><h3>${esc(RC.spotlight.name)}</h3></div>
+        <blockquote>“${esc(RC.spotlight.quote)}”</blockquote>
         <div class="rc-spot-meta">${[['supervisor', 'Manager :', RC.spotlight.manager], ['campaign', 'Nominated by :', RC.spotlight.nominatedBy], ['business', 'Department :', RC.spotlight.dept]].map(([ico, label, val]) => `<div class="rc-mchip"><span class="rc-mico">${icon(ico)}</span><span><small>${label}</small><b>${esc(val)}</b></span></div>`).join('')}</div></div>`],
   ];
   const dashReco = () => {
@@ -455,14 +469,31 @@
 
   const dashJobs = () => secPanel('job-postings', 'Job Postings', jobsCards(H.jobs), { right: searchBox('Search by title...', 'data-filter-jobs', 'sm'), foot: viewAll('View More', '#hr-admin/jobPostings'), ico: 'work', cls: 'jobs-w' });
 
-  const dashLearning = () => secPanel('learning-events', 'Learning Events', empty('No Events', '', 'event'), { right: viewAll('View all', '#training-events'), ico: 'article' });
+  // Learning Events: one event card (H.learningEvent, a sample) — date page, title, when / where / host, a line about it,
+  // and a centred link to Training & Events. Falls back to the "No Events" placeholder when there is none.
+  const leCard = (e) => {
+    const t = parse(e.date), n = daysUntil(e.date);
+    return `<article class="le-card">
+      <div class="le-top"><span class="desk-date lg${t.getMonth() !== today.getMonth() ? ' later' : ''}"><small>${MON[t.getMonth()]}</small><b>${String(t.getDate()).padStart(2, '0')}</b></span>
+        <div><p class="pj-kicker"><i class="sx-dot"></i>${n === 0 ? 'Today' : 'Upcoming'} · ${whenText(n)}</p><h3>${esc(e.title)}</h3></div></div>
+      <ul class="le-meta">
+        <li>${icon('event')}<span>${DAYS[t.getDay()].slice(0, 3)}, ${t.getDate()} ${MON[t.getMonth()]} ${t.getFullYear()}${e.time ? ` · ${esc(e.time)}` : ''}</span></li>
+        ${e.place ? `<li>${icon('place')}<span>${esc(e.place)}</span></li>` : ''}
+        ${e.host ? `<li>${icon('supervisor')}<span>Conducted by <b>${esc(e.host)}</b></span></li>` : ''}
+      </ul>
+      ${e.desc ? `<p class="le-desc">${esc(e.desc)}</p>` : ''}
+      <div class="le-foot"><a class="btn btn-primary btn-xs" href="#training-events">View details</a></div>
+    </article>`;
+  };
+  const dashLearning = () => secPanel('learning-events', 'Learning Events', H.learningEvent ? leCard(H.learningEvent) : empty('No Events', '', 'event'), { right: viewAll('View all', '#training-events'), ico: 'article', cls: 'le-w' });
 
-  // Same desk-calendar date pages as the "View all" pop-up (later months use the beige strip).
+  // Same desk-calendar date pages as the "View all" pop-up (later months use the beige strip). The list shows only the
+  // month the mini calendar is on (renderMiniCal filters it), with a short note for a month without holidays.
   const dashHolidays = () => secPanel('holiday-calendar', 'Holiday Calendar', `<div class="mini-cal" data-mini-cal data-y="${today.getFullYear()}" data-m="${today.getMonth()}"></div>
     <ul class="date-list holiday-rail">${D.holidays.map((h) => {
       const d = parse(h.date);
       return `<li class="date-item${d.getMonth() !== today.getMonth() ? ' later' : ''}" data-date="${h.date}"><div class="date-badge"><b>${String(d.getDate()).padStart(2, '0')}</b><small>${MON[d.getMonth()]}</small></div><span class="title">${esc(h.title)}</span></li>`;
-    }).join('')}</ul>`, { right: viewAll('View all', 'modal:holiday-calendar'), ico: 'event', cls: 'hol-w' });
+    }).join('')}<li class="hol-none" hidden>${icon('event')}<span>No holidays this month</span></li></ul>`, { right: viewAll('View all', 'modal:holiday-calendar'), ico: 'event', cls: 'hol-w' });
 
   function renderMiniCal(el) {
     const y = +el.dataset.y, m = +el.dataset.m;
@@ -480,6 +511,18 @@
       <button type="button" data-mstep="-1" aria-label="Previous month">${icon('chevL')}</button>
       <button type="button" data-mstep="1" aria-label="Next month">${icon('chevR')}</button></div></div>
       <div class="cal">${cells}</div>`;
+    // the holiday list under it: only this month's holidays
+    const list = el.closest('.panel')?.querySelector('.holiday-rail');
+    if (list) {
+      const pre = `${y}-${String(m + 1).padStart(2, '0')}-`;
+      let n = 0;
+      list.querySelectorAll('.date-item').forEach((li) => { const on = li.dataset.date.startsWith(pre); li.hidden = !on; if (on) n++; });
+      const shown = list.querySelectorAll('.date-item:not([hidden])');
+      list.querySelectorAll('.date-item.is-last').forEach((li) => li.classList.remove('is-last'));
+      if (shown.length) shown[shown.length - 1].classList.add('is-last');
+      const none = list.querySelector('.hol-none');
+      if (none) { none.hidden = n > 0; none.querySelector('span').textContent = `No holidays in ${MONTHS[m]} ${y}`; }
+    }
   }
 
   function updateScroller(sc) {
@@ -496,9 +539,26 @@
     }
   }
 
+  // Holiday Calendar = Today's Menu height while the two panels sit side by side (desktop); its holiday list scrolls
+  // inside if a month ever has more than fits. Re-synced whenever the menu panel resizes (tab switch, window resize).
+  let holRO = null;
+  function fitHolidays() {
+    const hol = $('.hol-w'), menu = $('.tm-w');
+    if (holRO) { holRO.disconnect(); holRO = null; }
+    if (!hol || !menu) return;
+    const sync = () => {
+      const side = hol.getBoundingClientRect().left >= menu.getBoundingClientRect().right;
+      hol.classList.toggle('hol-fit', side);
+      hol.style.height = side ? `${menu.offsetHeight}px` : '';
+    };
+    sync();
+    if ('ResizeObserver' in window) { holRO = new ResizeObserver(sync); holRO.observe(menu); holRO.observe(document.body); }
+  }
+
   function initDash() {
     const mc = $('[data-mini-cal]');
     if (mc) renderMiniCal(mc);
+    fitHolidays();
     document.querySelectorAll('[data-scroller]').forEach((sc) => {
       sc.addEventListener('scroll', () => updateScroller(sc), { passive: true });
       updateScroller(sc);
@@ -607,7 +667,7 @@
           <div data-pol-empty hidden>${empty('No policies found', 'Try another category or search term', 'doc')}</div></div>
         <div class="ml-pane" aria-hidden="true" inert><ul class="pl-grid">${polItems()}</ul></div>
       </div>`,
-    { right: `<div class="ph-actions pl-actions">${searchBox('Search policies...', 'data-filter-policies', 'sm')}${viewAll('View all', 'modal:policies')}</div>`, ico: 'doc', anchor: 'policies', sub: `${C.policies.length} documents` });
+    { right: `<div class="ph-actions pl-actions">${searchBox('Search policies...', 'data-filter-policies', 'sm')}${viewAll('View all', 'modal:policies')}</div>`, ico: 'doc', anchor: 'policies' });
   function filterPolicies() {
     const root = $('[data-anchor="policies"]');
     if (!root) return;
@@ -631,21 +691,20 @@
     if (!list.length) return empty('No videos available', 'There are no videos in this category yet', 'video');
     const v = list[cvIdx];
     return `<div class="cv-player"${cvBg(v)}>
-        <span class="cv-now">${icon('play')}Now playing · ${cvIdx + 1} / ${list.length}</span>
         <button type="button" class="vg-play cv-play" aria-label="Play ${esc(v.title)}">${icon('play')}</button>
         ${v.duration ? `<span class="cv-dur">${v.duration}</span>` : ''}
       </div>
       <div class="cv-info">
-        <div class="cv-head"><div><span class="cv-cat">${esc(v.cat)}</span><h3>${esc(v.title)}</h3></div>
+        <div class="cv-head"><div><h3>${esc(v.title)}</h3></div>
           <div class="cv-steps"><button type="button" class="btn btn-secondary btn-sm" data-cv-step="-1"${cvIdx === 0 ? ' disabled' : ''}>${icon('chevL')}Previous</button><button type="button" class="btn btn-primary btn-sm" data-cv-step="1"${cvIdx === list.length - 1 ? ' disabled' : ''}>Next${icon('chevR')}</button></div></div>
         ${v.desc ? `<p class="cv-desc">${esc(v.desc)}</p>` : ''}
       </div>`;
   }
   const cvPlaylist = () => cvList().map((v, i) => `<li><button type="button" class="cv-item" data-cv-item="${i}" aria-pressed="${i === cvIdx}">
       <span class="cv-thumb"${cvBg(v)}><span class="vg-mini">${icon('play')}</span></span>
-      <span class="cv-ttl"><b>${esc(v.title)}</b><small>${i === cvIdx ? 'Now playing' : `Video ${i + 1}`}</small></span></button></li>`).join('');
+      <span class="cv-ttl"><b>${esc(v.title)}</b>${i === cvIdx ? '<small>Now playing</small>' : ''}</span></button></li>`).join('');
   const corpVideos = () => panel('Video Gallery', `
-      <div class="pill-row" role="group" aria-label="Video category">${C.videoCats.map((c) => `<button type="button" class="pill" data-cv-tab="${esc(c)}" aria-pressed="${c === cvCat}">${esc(c)}<span>${C.videos.filter((v) => v.cat === c).length}</span></button>`).join('')}</div>
+      <div class="pill-row" role="group" aria-label="Video category">${C.videoCats.map((c) => `<button type="button" class="pill" data-cv-tab="${esc(c)}" aria-pressed="${c === cvCat}">${esc(c)}</button>`).join('')}</div>
       <div class="cv" data-cv></div>`, { ico: 'video', anchor: 'videos' });
   function renderCv() {
     const root = $('[data-cv]');
@@ -653,7 +712,7 @@
     const list = cvList();
     root.classList.toggle('cv-empty', !list.length);
     root.innerHTML = `<div class="cv-stage" aria-live="polite">${cvStage()}</div>
-      ${list.length ? `<aside class="cv-side" aria-label="Playlist"><p class="cv-side-head"><b>Up next</b><span>${list.length} video${list.length === 1 ? '' : 's'}</span></p><ul class="cv-list">${cvPlaylist()}</ul></aside>` : ''}`;
+      ${list.length ? `<aside class="cv-side" aria-label="Playlist"><p class="cv-side-head"><b>Up next</b></p><ul class="cv-list">${cvPlaylist()}</ul></aside>` : ''}`;
     document.querySelectorAll('[data-cv-tab]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cvTab === cvCat)));
     // Keep the box at the tallest height seen (first film has the longest description), so it doesn't resize
     // when moving between videos or into an empty category. Reset on window resize.
@@ -711,9 +770,11 @@
 
   // Wish Your Colleagues: tabs (Birthdays / New Joiners / Work Anniversaries) with counts; colleague cards
   const WC_ICON = { Birthdays: 'cake', 'New Joiners': 'group', 'Work Anniversaries': 'celebration' };
+  // the line under the heading, per tab
+  const WC_SUB = { Birthdays: 'Wishing our birthday stars a year full of joy', 'New Joiners': 'Say Hello! to new energy', 'Work Anniversaries': 'Celebrating years of dedication and teamwork' };
   let wcTab = Object.keys(HR.colleagues)[0], wcMinH = 0;
-  const hrWish = () => panel('Wish Your Colleagues', `<div class="pill-row" role="group" aria-label="Celebration type">${Object.keys(HR.colleagues).map((t) => `<button type="button" class="pill" data-wc-tab="${esc(t)}" aria-pressed="${t === wcTab}">${esc(t)}<span>${HR.colleagues[t].length}</span></button>`).join('')}</div>
-      <div class="wc-box" data-wc aria-live="polite"></div>`, { ico: 'celebration', anchor: 'wish-your-colleagues', sub: 'Say Hello! to new energy', right: viewAll('View all', 'modal:colleagues') });
+  const hrWish = () => panel('Wish Your Colleagues', `<div class="pill-row" role="group" aria-label="Celebration type">${Object.keys(HR.colleagues).map((t) => `<button type="button" class="pill" data-wc-tab="${esc(t)}" aria-pressed="${t === wcTab}">${esc(t)}</button>`).join('')}</div>
+      <div class="wc-box" data-wc aria-live="polite"></div>`, { ico: 'celebration', anchor: 'wish-your-colleagues', sub: `<span data-wc-sub>${esc(WC_SUB[wcTab] || '')}</span>`, right: viewAll('View all', 'modal:colleagues') });
   // One colleague card (Home Birthdays design): photo + badge, serif name, ornament, role, department (+ years), Wish Now!
   const WC_ROW = 4; // the section shows one full row; "View all" shows everyone
   const wcCard = (p, ico) => `<li class="bd-card">
@@ -732,6 +793,8 @@
       ? `<ul class="bd-list wc-list">${list.slice(0, WC_ROW).map((p) => wcCard(p, ico)).join('')}</ul>`
       : empty(`No ${wcTab.toLowerCase()} today`, 'Check back tomorrow', ico);
     document.querySelectorAll('[data-wc-tab]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wcTab === wcTab)));
+    const sub = $('[data-wc-sub]');
+    if (sub) sub.textContent = WC_SUB[wcTab] || '';
     // keep the box at the tallest height seen, so switching tabs doesn't resize it (reset on window resize)
     box.style.minHeight = '';
     wcMinH = Math.max(wcMinH, box.offsetHeight);
@@ -757,13 +820,13 @@
     { ico: 'verified', anchor: 'erp-winners', cls: 'ew-panel', sub: `<span data-erp-sub>${erpSub(erpQ)}</span>`,
       right: `<div class="ew-actions"><div class="ew-tabs" role="group" aria-label="Quarter">${Object.keys(HR.erp).map((q) => `<button type="button" class="ew-tab" data-erp-q="${esc(q)}" aria-pressed="${q === erpQ}">${esc(q)}</button>`).join('')}</div>${viewAll('View all', 'modal:erp')}</div>` });
   const erpCard = (p) => `<article class="ew-card">
-      <div class="ew-band"><span class="ew-chip">${icon('verified')}Winner</span><span class="ew-medal" aria-hidden="true">${icon('verified')}</span></div>
+      <div class="ew-band"></div>
       <span class="ew-av">${erpPhoto(p)}</span>
       <div class="ew-body">
         <h3 class="ew-name">${esc(p.name)}</h3>
         <span class="ew-role">${esc(p.role)}</span>
         ${ORNAMENT}
-        <blockquote class="ew-quote"><span class="ew-qm" aria-hidden="true">“</span>${esc(p.text)}</blockquote>
+        <blockquote class="ew-quote">${esc(p.text)}</blockquote>
       </div>
     </article>`;
   // Every quarter is rendered into the same grid cell (only the chosen one visible), so the box keeps the height of
@@ -788,71 +851,30 @@
   // Make a Request / Send Suggestions
   // Two guided forms: numbered steps, tile / chip pickers, a text box with counter, and an in-place "sent" state
   // (the form keeps its size). Prototype only: nothing is sent anywhere.
-  const hfStep = (n, title, hint = '') => `<span class="hf-step"><span class="hf-num">${n}</span><span class="hf-step-t">${title}</span>${hint ? `<span class="hf-hint">${hint}</span>` : ''}</span>`;
+  // step heading; the number circle only when n is given (Make a Request shows none)
+  const hfStep = (n, title, hint = '') => `<span class="hf-step">${n ? `<span class="hf-num">${n}</span>` : ''}<span class="hf-step-t">${title}</span>${hint ? `<span class="hf-hint">${hint}</span>` : ''}</span>`;
   const hfBox = (id, ph, rows) => `<span class="hf-box"><textarea id="${id}" name="text" rows="${rows}" maxlength="500" placeholder="${ph}" data-count></textarea><small class="hf-count" data-count-out aria-live="polite">0 / 500</small></span>`;
-  const hfFoot = (ico, note, label) => `<div class="hf-foot"><p class="hf-note" data-hf-msg data-note="${esc(note)}" data-ico="${ico}">${icon(ico)}<span>${note}</span></p><button type="submit" class="btn btn-primary hf-submit">${label}${icon('arrowR')}</button></div>`;
+  const hfFoot = (ico, note, label) => `<div class="hf-foot"><p class="hf-note" data-hf-msg data-note="${esc(note)}" data-ico="${ico}">${note ? `${icon(ico)}<span>${note}</span>` : ''}</p><button type="submit" class="btn btn-primary hf-submit">${label}${icon('arrowR')}</button></div>`;
   const hfDone = (title, text, again) => `<div class="hf-done" role="status" aria-hidden="true" inert><span class="hf-done-ico">${icon('check')}</span><b>${title}</b><p>${text}</p><button type="button" class="btn btn-secondary" data-hf-again>${again}</button></div>`;
   const hrRequest = () => panel('Make a Request', `<form class="hf" data-hf="request" novalidate>
-      <fieldset class="hf-group"><legend>${hfStep(1, 'What do you need?')}</legend>
+      <fieldset class="hf-group"><legend>${hfStep(0, 'What do you need?')}</legend>
         <div class="hf-tiles">${(HR.requestTypes || []).map((t) => `<label class="hf-tile"><input type="radio" name="type" value="${esc(t.id)}" /><span class="hf-tile-ico">${icon(t.icon)}</span><span class="hf-tile-name">${esc(t.label)}</span><span class="hf-tick">${icon('check')}</span></label>`).join('')}</div>
       </fieldset>
-      <div class="hf-group hf-grow"><label for="hf-req-text">${hfStep(2, 'Tell us more')}</label>${hfBox('hf-req-text', 'Type your request here', 3)}</div>
-      ${hfFoot('info', 'The HR &amp; Admin team will follow up with you.', 'Submit request')}
+      <div class="hf-group hf-grow"><label for="hf-req-text">${hfStep(0, 'Tell us more')}</label>${hfBox('hf-req-text', 'Type your request here', 3)}</div>
+      ${hfFoot('info', '', 'Submit request')}
       ${hfDone('Request submitted', 'Thank you. The HR &amp; Admin team will follow up with you.', 'Make another request')}
     </form>`, { ico: 'chat', anchor: 'make-a-request', cls: 'hf-panel', sub: 'Raise a request with the HR &amp; Admin team' });
   // "Share your idea" illustration: 3D light bulb — shaded glass sphere with a glowing filament, specular highlights,
-  // a metallic screw base, light rays, sparkles and a soft floor shadow / reflected glow.
-  const ideaArt = (vb = '0 0 160 110') => `<svg class="hf-art" viewBox="${vb}" aria-hidden="true">
-      <defs>
-        <radialGradient id="hbHalo" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe08a" stop-opacity=".85"/><stop offset=".55" stop-color="#ffd36b" stop-opacity=".28"/><stop offset="1" stop-color="#ffd36b" stop-opacity="0"/></radialGradient>
-        <radialGradient id="hbGlass" cx="40%" cy="34%" r="66%"><stop offset="0" stop-color="#fffdf2"/><stop offset=".3" stop-color="#ffeaa8"/><stop offset=".68" stop-color="#f4b850"/><stop offset=".9" stop-color="#d48f36"/><stop offset="1" stop-color="#b8742a"/></radialGradient>
-        <radialGradient id="hbCore" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff6d6" stop-opacity="0"/></radialGradient>
-        <linearGradient id="hbSpec" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-        <linearGradient id="hbMetal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5e4c3c"/><stop offset=".22" stop-color="#bda78d"/><stop offset=".42" stop-color="#f6ead8"/><stop offset=".66" stop-color="#a08a73"/><stop offset="1" stop-color="#4a3c30"/></linearGradient>
-        <filter id="hbBlur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
-        <filter id="hbSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1"/></filter>
-      </defs>
-      <ellipse class="hb-floor" cx="80" cy="101" rx="36" ry="6.5" fill="#ffcf6b" filter="url(#hbBlur)"/>
-      <ellipse cx="80" cy="101.5" rx="16" ry="2.8" fill="rgba(60,38,18,.4)" filter="url(#hbSoft)"/>
-      <circle class="hb-halo" cx="80" cy="42" r="44" fill="url(#hbHalo)"/>
-      <g class="hb-rays"><path d="M80 11V4M57.4 19.4l-4.6-4.6M102.6 19.4l4.6-4.6M48 42h-7M112 42h7M54 62l-4 3M106 62l4 3"/></g>
-      <path d="M69 73c0-9-14-15-14-31a25 25 0 0 1 50 0c0 16-14 22-14 31z" fill="url(#hbGlass)"/>
-      <circle cx="80" cy="49" r="15" fill="url(#hbCore)"/>
-      <path d="M73.5 72V60M86.5 72V60" stroke="rgba(150,96,40,.55)" stroke-width="1.2"/>
-      <path d="M73.5 60l2-12 2.6 6.5 1.9-9 1.9 9 2.6-6.5 2 12" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" opacity=".7" filter="url(#hbSoft)"/>
-      <path d="M73.5 60l2-12 2.6 6.5 1.9-9 1.9 9 2.6-6.5 2 12" fill="none" stroke="#fff1bf" stroke-width="1.5" stroke-linejoin="round"/>
-      <ellipse cx="68" cy="29" rx="6.5" ry="11" transform="rotate(-38 68 29)" fill="url(#hbSpec)"/>
-      <circle cx="62.5" cy="45" r="1.8" fill="#fff" opacity=".7"/>
-      <path d="M98.5 27a25 25 0 0 1 5.3 21" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".5"/>
-      <rect x="70" y="76" width="20" height="16" rx="3" fill="#3f3228"/>
-      <rect x="67.5" y="71.5" width="25" height="5.5" rx="2.4" fill="url(#hbMetal)"/>
-      <rect x="69" y="77.5" width="22" height="4.3" rx="2.15" fill="url(#hbMetal)"/>
-      <rect x="69" y="82.6" width="22" height="4.3" rx="2.15" fill="url(#hbMetal)"/>
-      <rect x="69.5" y="87.7" width="21" height="4.3" rx="2.15" fill="url(#hbMetal)"/>
-      <path d="M73.5 92.5h13l-2.6 5.2a2 2 0 0 1-1.8 1.1h-4.2a2 2 0 0 1-1.8-1.1z" fill="#3a2e25"/>
-      <path class="hb-spark" d="M132 20l2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2z"/>
-      <path class="hb-spark sm" d="M26 66l1.4 3.8 3.8 1.4-3.8 1.4-1.4 3.8-1.4-3.8-3.8-1.4 3.8-1.4z"/>
-      <circle class="hb-spark" cx="140" cy="52" r="2"/><circle class="hb-spark" cx="22" cy="24" r="1.6"/><circle class="hb-spark sm" cx="120" cy="82" r="1.4"/>
-    </svg>`;
-  // Split layout: gold "idea" side panel (3D bulb, heading, reassurances) | writing area (box with anonymous switch + counter, tip / error, send)
-  const hrSuggest = () => panel('Send Suggestions', `<form class="hf hf-split" data-hf="suggest" novalidate>
-      <aside class="hf-side">
-        <span class="hf-art-wrap">${ideaArt()}</span>
-        <div class="hf-side-t"><h3>Share your idea</h3>
-        <p>Big or small, every idea helps make our workplace better.</p></div>
-        <ul class="hf-points"><li>${icon('check')}Read by the HR team</li><li>${icon('check')}Anonymous if you prefer</li></ul>
-      </aside>
-      <div class="hf-main">
-        <label class="hf-main-t" for="hf-sg-text">Your suggestion</label>
-        <div class="hf-box"><textarea id="hf-sg-text" name="text" rows="5" maxlength="500" placeholder="Type your suggestions here" data-count></textarea>
-          <div class="hf-box-bar"><label class="hf-switch"><input type="checkbox" role="switch" name="anon" /><span class="hf-track" aria-hidden="true"></span><span class="hf-switch-t">${icon('lock')}Send anonymously</span></label><small class="hf-count" data-count-out aria-live="polite">0 / 500</small></div></div>
-        <div class="hf-act">
-          <p class="hf-note" data-hf-msg data-note="Tip: say what you would change and why." data-ico="info">${icon('info')}<span>Tip: say what you would change and why.</span></p>
-          <button type="submit" class="btn btn-primary hf-submit">Send suggestion${icon('arrowR')}</button>
-        </div>
+  // Send Suggestions: same structure as Make a Request beside it — a labelled writing box that fills the panel, then the
+  // footer (tip / error on the left, Send suggestion on the right) and the thank-you state.
+  const hrSuggest = () => panel('Send Suggestions', `<form class="hf hf-sg" data-hf="suggest" novalidate>
+      <div class="hf-group hf-sg-group">
+        <label class="hf-sg-label" for="hf-sg-text"><span class="hf-step"><span class="hf-step-t">Your suggestion</span></span></label>
+        ${hfBox('hf-sg-text', 'Type your suggestion here…', 6)}
       </div>
+      ${hfFoot('info', '', 'Send suggestion')}
       ${hfDone('Thanks for your idea', 'Your suggestion has been shared with the HR team.', 'Share another idea')}
-    </form>`, { ico: 'bulb', anchor: 'send-suggestions', cls: 'hf-panel hf-panel-split', sub: 'Ideas that make work better for everyone' });
+    </form>`, { ico: 'bulb', anchor: 'send-suggestions', cls: 'hf-panel', sub: 'Ideas that make work better for everyone' });
 
   // ---------- I-Connect ----------
   // Our Values tiles · People Stories (featured story + card grid) · Newsletter (latest edition + compact cards + archive tile).
@@ -890,32 +912,26 @@
     const L = IC.stories;
     return panel('People Stories', `
       <div class="pj-intro">
-        <div class="pj-head"><p class="pj-kicker"><i class="sx-dot"></i>From our people</p><h3 class="pj-h">Journeys worth sharing</h3></div>
-        <p class="pj-sub">Adventures, discoveries and quiet moments shared by colleagues across Oberoi Realty. Pick a story to read it in full.</p>
+        <div class="pj-head"><h3 class="pj-h">Journeys worth sharing</h3></div>
         <svg class="pj-route" viewBox="0 0 220 70" aria-hidden="true"><path d="M6 58 C 50 58, 60 14, 110 22 S 170 60, 214 12"/><circle cx="6" cy="58" r="4"/><circle cx="110" cy="22" r="4"/><circle class="end" cx="214" cy="12" r="5"/></svg>
       </div>
       <div class="pj-grid" data-pj-grid>${L.map((st, i) => pjCard(st, i, i < PJ_SHOW ? PJ_SLOTS[i] : 'tile', ` data-ic-item${i < PJ_SHOW ? '' : ' data-pj-extra'}`)).join('')}</div>
-      <div class="pj-foot"><span>Showing ${Math.min(PJ_SHOW, L.length)} of ${L.length} stories</span><button type="button" class="pj-all" data-modal="stories">View all stories${icon('arrowR')}</button></div>
+      <div class="pj-foot"><button type="button" class="pj-all" data-modal="stories">View all stories${icon('arrowR')}</button></div>
       ${icEmpty('stories')}`,
-    { ico: 'article', anchor: 'people-stories', cls: 'pj-panel', sub: `${IC.stories.length} stories shared by our colleagues`, right: searchBox('Search stories...', 'data-filter-ic', 'sm') });
+    { ico: 'article', anchor: 'people-stories', cls: 'pj-panel', right: searchBox('Search stories...', 'data-filter-ic', 'sm') });
   };
-  // Newsletter — editorial issue: masthead (serif title, double rule), cover story beside an "In this issue" index of the
+  // Newsletter — editorial issue: the cover story beside an index of the
   // other articles, then a past-editions strip. Every article opens the reading view; search filters cover + index.
   const nwOpen = (i, from = '') => ` data-modal="story" data-set="news" data-story="${i}"${from ? ` data-from="${from}"` : ''}`;
   const icNews = () => {
     const [f, ...rest] = IC.newsletters;
     return panel('Newsletter', `
-      <div class="nw-mast">
-        <div class="nw-mast-l"><p class="pj-kicker"><i class="sx-dot"></i>The newsletter</p><h3 class="nw-h">Inside Oberoi Realty</h3></div>
-        <p class="nw-mast-r">Explore features, updates, and inspiring insights from across our organization.<span>${IC.newsletters.length} features in this edition</span></p>
-      </div>
       <div class="nw-layout">
         <button type="button" class="nw-cover" data-ic-item${nwOpen(0)}>
-          <span class="nw-cover-media">${img(f.img, '')}<span class="st-tag"><i class="sx-dot"></i>Cover story</span></span>
+          <span class="nw-cover-media">${img(f.img, '')}</span>
           <span class="nw-cover-copy"><b>${esc(f.title)}</b><span class="nw-ex">${more(f.text)}</span><span class="nw-go">Read article${icon('arrowR')}</span></span>
         </button>
         <div class="nw-index">
-          <p class="nw-index-head"><b>In this issue</b><span>${rest.length} articles</span></p>
           <ul class="nw-list">${rest.map((n, k) => `<li data-ic-item><button type="button" class="nw-row"${nwOpen(k + 1)}>
             <span class="nw-thumb">${img(n.img, '')}</span>
             <span class="nw-row-t"><b>${esc(n.title)}</b><span>${more(n.text)}</span></span>${icon('chevR')}</button></li>`).join('')}</ul>
@@ -946,7 +962,8 @@
   const teAgenda = (src, kicker, emptyHtml) => {
     const up = src.filter((e) => daysUntil(e.date) >= 0).sort((x, y) => (x.date < y.date ? -1 : 1));
     if (!up.length) return emptyHtml;
-    const [n0, ...rest] = up, t0 = parse(n0.date);
+    // the next event as the banner, then the following three as cards (the rest are in "View all")
+    const [n0, ...after] = up, rest = after.slice(0, 3), t0 = parse(n0.date);
     const groups = [];
     rest.forEach((e) => { const t = parse(e.date), k = `${MONTHS[t.getMonth()]} ${t.getFullYear()}`; let g = groups.find((x) => x.k === k); if (!g) groups.push(g = { k, items: [] }); g.items.push(e); });
     return `<div class="fw">
@@ -955,8 +972,94 @@
         <div class="fw-next-t"><p class="pj-kicker"><i class="sx-dot"></i>${kicker}</p><h3>${esc(n0.title)}</h3><p class="fw-when">${icon('calendar')}${longDate(n0.date)}${n0.place ? `<span class="fw-sep">·</span>${icon('place')}${esc(n0.place)}` : ''}</p></div>
         <div class="fw-count"><b>${Math.max(daysUntil(n0.date), 0)}</b><span>${daysUntil(n0.date) === 1 ? 'day to go' : 'days to go'}</span></div>
       </article>
-      <div class="fw-list">${groups.map((g) => `<p class="fw-month">${g.k}</p><ul>${g.items.map((e) => { const t = parse(e.date); return `<li class="fw-item" data-ev="${e.date}"><span class="desk-date${t.getMonth() !== today.getMonth() || t.getFullYear() !== today.getFullYear() ? ' later' : ''}"><small>${MON[t.getMonth()]}</small><b>${String(t.getDate()).padStart(2, '0')}</b></span><span class="fw-item-t"><b>${esc(e.title)}</b><small>${e.place ? `${esc(e.place)} · ` : ''}${DAYS[t.getDay()]} · ${whenText(daysUntil(e.date))}</small></span></li>`; }).join('')}</ul>`).join('')}</div>
+      <div class="fw-list">${groups.map((g) => `<div class="fw-group"><p class="fw-month">${g.k}</p><ul>${g.items.map((e) => { const t = parse(e.date); return `<li class="fw-item" data-ev="${e.date}"><span class="desk-date${t.getMonth() !== today.getMonth() || t.getFullYear() !== today.getFullYear() ? ' later' : ''}"><small>${MON[t.getMonth()]}</small><b>${String(t.getDate()).padStart(2, '0')}</b></span><span class="fw-item-t"><b>${esc(e.title)}</b><small>${e.place ? `${esc(e.place)} · ` : ''}${DAYS[t.getDay()]} · ${whenText(daysUntil(e.date))}</small></span></li>`; }).join('')}</ul></div>`).join('')}</div>
     </div>`;
+  };
+  // Learning Events hub (Training & Events): one panel — a horizontal "Today" card and a "Coming up" timeline on the left,
+  // the month calendar (session days marked; click one to jump to it) with a legend on the right.
+  const LD_SHOW = 2; // timeline cards shown; the rest via "+N more" / View all
+  const ldHub = () => {
+    const key = (e) => e.date + ' ' + (e.time || '');
+    const list = (D.learningEvents || []).slice().sort((x, y) => (key(x) < key(y) ? -1 : 1));
+    const todays = list.filter((e) => daysUntil(e.date) === 0), up = list.filter((e) => daysUntil(e.date) > 0);
+    const shown = up.slice(0, LD_SHOW), more = up.length - shown.length, t0 = today0;
+    const todayCard = `<section class="ld3-today" aria-label="Today's sessions">
+        <div class="ld3-day"><b>${String(t0.getDate()).padStart(2, '0')}</b><span>${DAYS[t0.getDay()].slice(0, 3)} · ${MON[t0.getMonth()]}</span></div>
+        <div class="ld3-today-main">
+          <p class="pj-kicker"><i class="sx-dot"></i>Today · ${todays.length ? `${todays.length} ${todays.length === 1 ? 'session' : 'sessions'}` : 'no sessions'}</p>
+          ${todays.length ? `<ul class="ld3-today-list">${todays.map((e) => `<li data-ev="${e.date}"><span class="ld3-time">${icon('event')}${esc(e.time || 'All day')}</span><b>${esc(e.title)}</b>${e.place ? `<small>${icon('place')}${esc(e.place)}</small>` : ''}</li>`).join('')}</ul>`
+            : `<p class="ld3-free">${up[0] ? `No session today. Your next one is <b>${esc(up[0].title)}</b> on ${DAYS[parse(up[0].date).getDay()].slice(0, 3)}, ${parse(up[0].date).getDate()} ${MON[parse(up[0].date).getMonth()]}.` : 'No sessions scheduled for today.'}</p>`}
+        </div>
+      </section>`;
+    const timeline = shown.length ? `<ol class="ld3-tl">${shown.map((e) => {
+        const t = parse(e.date), n = daysUntil(e.date);
+        return `<li class="ld3-ev" data-ev="${e.date}">
+          <span class="ld3-when"><small>${DAYS[t.getDay()].slice(0, 3)}</small><b>${String(t.getDate()).padStart(2, '0')}</b><small>${MON[t.getMonth()]}</small></span>
+          <span class="ld3-dot" aria-hidden="true"></span>
+          <span class="ld3-card"><b>${esc(e.title)}</b><span class="ld3-meta">${e.time ? `<span>${icon('event')}${esc(e.time)}</span>` : ''}${e.place ? `<span>${icon('place')}${esc(e.place)}</span>` : ''}</span></span>
+          <span class="ld3-in">${whenText(n)}</span>
+        </li>`;
+      }).join('')}</ol>` : `<div class="ld3-empty"><span class="ld3-empty-ico">${icon('school')}</span><b>No upcoming sessions</b><p>New training sessions and workshops will appear here as soon as they are scheduled.</p></div>`;
+    return `<section class="panel te-panel ld3-panel">
+      ${panelHead('Learning Events', viewAll('View all', 'modal:te-ld'), '', 'school')}
+      <div class="panel-body ld3">
+        <div class="ld3-main">
+          ${todayCard}
+          ${shown.length ? `<div class="ld3-up">
+            <p class="ld3-h"><b>Coming up</b>${more > 0 ? `<button type="button" class="ld3-more" data-modal="te-ld">+${more} more${icon('chevR')}</button>` : ''}</p>
+            ${timeline}
+          </div>` : timeline}
+        </div>
+        <aside class="ld3-side">
+          <div class="ld3-cal" data-cal="ld" data-y="${today.getFullYear()}" data-m="${today.getMonth()}" data-marks="${[...new Set(list.map((e) => e.date))].join(',')}"></div>
+          <p class="ld3-legend"><span><i class="lg-has"></i>Session day</span><span><i class="lg-today"></i>Today</span></p>
+        </aside>
+      </div>
+    </section>`;
+  };
+  // Fun @ Work events hub (same design as the Learning Events hub): an "Up next" card with a countdown and a "Coming up"
+  // timeline on the left, the month calendar (event days marked; click one to jump to it) with a legend on the right.
+  const FUN_SHOW = 2; // timeline cards shown after "Up next"; the rest via "+N more" / View all
+  const funHub = () => {
+    const all = (D.funEvents || []).slice().sort((x, y) => (x.date < y.date ? -1 : 1));
+    const up = all.filter((e) => daysUntil(e.date) >= 0), [n0] = up, rest = up.slice(1, 1 + FUN_SHOW), more = Math.max(0, up.length - 1 - rest.length);
+    let left;
+    if (!n0) {
+      left = `<div class="ld3-empty"><span class="ld3-empty-ico">${icon('celebration')}</span><b>No upcoming events</b><p>New celebrations and activities will appear here as soon as they are planned.</p></div>`;
+    } else {
+      const t0 = parse(n0.date), d0 = daysUntil(n0.date);
+      left = `<section class="ld3-today fn3-next" data-ev="${n0.date}" aria-label="Next event">
+          <div class="ld3-day"><b>${String(t0.getDate()).padStart(2, '0')}</b><span>${DAYS[t0.getDay()].slice(0, 3)} · ${MON[t0.getMonth()]}</span></div>
+          <div class="ld3-today-main">
+            <p class="pj-kicker"><i class="sx-dot"></i>Up next · ${whenText(d0)}</p>
+            <b class="fn3-title">${esc(n0.title)}</b>
+            <small class="fn3-date">${icon('event')}${longDate(n0.date)}</small>
+          </div>
+          <div class="fn3-count"><b>${d0}</b><span>${d0 === 1 ? 'day to go' : 'days to go'}</span></div>
+        </section>
+        <div class="ld3-up">
+          <p class="ld3-h"><b>Coming up</b>${more > 0 ? `<button type="button" class="ld3-more" data-modal="te-fun">+${more} more${icon('chevR')}</button>` : ''}</p>
+          ${rest.length ? `<ol class="ld3-tl">${rest.map((e) => {
+            const t = parse(e.date);
+            return `<li class="ld3-ev" data-ev="${e.date}">
+              <span class="ld3-when"><small>${DAYS[t.getDay()].slice(0, 3)}</small><b>${String(t.getDate()).padStart(2, '0')}</b><small>${MON[t.getMonth()]}</small></span>
+              <span class="ld3-dot" aria-hidden="true"></span>
+              <span class="ld3-card"><b>${esc(e.title)}</b><span class="ld3-meta"><span>${icon('event')}${DAYS[t.getDay()]}, ${t.getDate()} ${MONTHS[t.getMonth()]} ${t.getFullYear()}</span></span></span>
+              <span class="ld3-in">${whenText(daysUntil(e.date))}</span>
+            </li>`;
+          }).join('')}</ol>` : '<p class="ld3-free">Nothing else planned yet.</p>'}
+        </div>`;
+    }
+    return `<section class="panel te-panel ld3-panel fn3-panel">
+      ${panelHead('Events', viewAll('View all', 'modal:te-fun'), '', 'celebration')}
+      <div class="panel-body ld3">
+        <div class="ld3-main">${left}</div>
+        <aside class="ld3-side">
+          <div class="ld3-cal" data-cal="fun" data-y="${today.getFullYear()}" data-m="${today.getMonth()}" data-marks="${[...new Set(all.map((e) => e.date))].join(',')}"></div>
+          <p class="ld3-legend"><span><i class="lg-has"></i>Event day</span><span><i class="lg-today"></i>Today</span></p>
+        </aside>
+      </div>
+    </section>`;
   };
   const teFun = () => teAgenda(D.funEvents, 'Up next', empty('No upcoming events', 'Check back soon', 'event'));
   // Learning Events card: today's sessions (left) and the upcoming ones (right); the illustration when there are none.
@@ -986,14 +1089,18 @@
       </section>
     </div>`;
   };
-  // Photo Gallery: album viewer (photo on a blurred copy, arrows, counter, thumbnails) + album cards
+  // Photo Gallery: album viewer (photo on a blurred copy, arrows, counter, thumbnails), year tabs + that year's album
+  // cards, and "View all" (every album, grouped by year). The year shown is always the year of the album in the viewer.
   let tgAlbum = 0, tgPhoto = 0;
   const teGallery = () => `<div class="tg" data-tg>
       <div class="tg-stage" data-tg-stage aria-live="polite"></div>
       <div class="tg-thumbs" data-tg-thumbs role="group" aria-label="Photos"></div>
-      <div class="tg-albums-head"><b>${TE.albums[0] ? TE.albums[0].year : ''} albums</b><span>${TE.albums.length} albums</span></div>
-      <div class="tg-albums">${TE.albums.map((al, i) => `<button type="button" class="tg-album" data-tg-album="${i}" aria-pressed="${i === tgAlbum}"><span class="tg-cover">${img(al.photos[0], '')}</span><span class="tg-album-t"><b>${esc(al.title)}</b><small>${al.count} photos</small></span></button>`).join('')}</div>
+      <div class="tg-albums-head"><div class="tg-years" role="group" aria-label="Album year">${tgYears().map((y) => `<button type="button" class="pill" data-tg-year="${y}" aria-pressed="false">${y}</button>`).join('')}</div>${viewAll('View all', 'modal:albums')}</div>
+      <div class="tg-albums" data-tg-albums></div>
     </div>`;
+  // album years, newest first; one album card (page: data-tg-album, "View all" pop-up: data-ta-album)
+  const tgYears = () => [...new Set(TE.albums.map((al) => al.year))].sort((x, y) => y - x);
+  const tgCard = (al, i, attr) => `<button type="button" class="tg-album" ${attr}="${i}"${attr === 'data-tg-album' ? ` aria-pressed="${i === tgAlbum}"` : ''}><span class="tg-cover">${img(al.photos[0], '')}</span><span class="tg-album-t"><b>${esc(al.title)}</b><small>${al.count} photos</small></span></button>`;
   // Full-screen viewer for the Photo Gallery (shares tgAlbum / tgPhoto with the page viewer)
   function renderLb(bd) {
     const al = TE.albums[tgAlbum], n = al.photos.length; tgPhoto = ((tgPhoto % n) + n) % n;
@@ -1012,22 +1119,25 @@
     const src = al.photos[tgPhoto];
     stage.style.setProperty('--bg', `url('${src}')`);
     stage.innerHTML = `${img(src, `${al.title}, photo ${tgPhoto + 1}`)}
-      <div class="tg-cap"><span class="st-tag"><i class="sx-dot"></i>${esc(TE.galleryCategory)}</span><b>${esc(al.title)}</b><small>Photo ${tgPhoto + 1} of ${n}</small></div>
+      <div class="tg-cap"><b>${esc(al.title)}</b></div>
       ${n > 1 ? `<button type="button" class="tg-arrow prev" data-tg-step="-1" aria-label="Previous photo">${icon('chevL')}</button><button type="button" class="tg-arrow next" data-tg-step="1" aria-label="Next photo">${icon('chevR')}</button>` : ''}
       <button type="button" class="tg-expand" data-modal="gallery" aria-label="View photo full screen" title="Expand">${icon('expand')}</button>`;
     $('[data-tg-thumbs]').innerHTML = n < 2 ? '' : al.photos.map((p, i) => `<button type="button" class="tg-thumb" data-tg-photo="${i}" aria-pressed="${i === tgPhoto}" aria-label="Photo ${i + 1}">${img(p, '')}</button>`).join('');
-    document.querySelectorAll('[data-tg-album]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.tgAlbum === tgAlbum)));
+    const yr = al.year, cards = $('[data-tg-albums]');
+    if (cards) cards.innerHTML = TE.albums.map((x, i) => (x.year === yr ? tgCard(x, i, 'data-tg-album') : '')).join('');
+    document.querySelectorAll('[data-tg-year]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.tgYear === yr)));
   }
 
   // ---------- Pages ----------
   const pages = {
-    // Home — interactive dashboard: shortcuts, banners, birthdays, main column + side rail,
+    // Home — interactive dashboard: shortcuts, banners, birthdays, main column + side rail (with no learning event the
+    // Learning Events card is left out and the Video Gallery takes the full width below Today's Menu / Holiday Calendar),
     // then the full-width recognition carousel (ERP winners / Everyday Hero) and job postings.
     home: () => `<div class="dash">
       ${dashShortcuts()}
       ${bannerCarousel()}
       ${dashBirthdays()}
-      <div class="dash-cols">
+      ${H.learningEvent ? `<div class="dash-cols">
         <div class="dash-main">
           ${dashMenu()}
           ${dashVideos()}
@@ -1036,7 +1146,11 @@
           ${dashHolidays()}
           ${dashLearning()}
         </aside>
+      </div>` : `<div class="dash-cols">
+        <div class="dash-main">${dashMenu()}</div>
+        <aside class="dash-rail">${dashHolidays()}</aside>
       </div>
+      <div class="dash-wide">${dashVideos()}</div>`}
       ${dashReco()}
       ${dashJobs()}
     </div>`,
@@ -1062,22 +1176,20 @@
       <div class="section te-section" data-anchor="learning-events">
         ${sectionHead('Learning &amp; Development', 'Explore upcoming training sessions and boost your skills')}
         <div class="row">
-          <div class="c-8">${panel('Learning Events', teLD(), { right: viewAll('View all', 'modal:te-ld'), ico: 'school', sub: 'Training sessions and workshops', cls: 'te-panel ld-panel' })}</div>
-          <div class="c-4">${calPanel('ld', D.learningEvents || [])}</div>
+          <div class="c-12">${ldHub()}</div>
         </div>
       </div>
 
       <div class="section te-section" data-anchor="fun-at-work">
         ${sectionHead('Fun @ Work', 'Engage in exciting activities and make work more fun')}
         <div class="row">
-          <div class="c-8">${panel('Events', teFun(), { right: viewAll('View all', 'modal:te-fun'), ico: 'celebration', sub: `${D.funEvents.filter((e) => daysUntil(e.date) >= 0).length} upcoming events`, cls: 'te-panel fw-panel' })}</div>
-          <div class="c-4">${calPanel('fun', D.funEvents)}</div>
+          <div class="c-12">${funHub()}</div>
         </div>
       </div>
 
       <div class="section te-section" data-anchor="photo-gallery">
         ${sectionHead('Photo Gallery', 'Relive memories from events and milestones')}
-        ${panel('Albums', teGallery(), { ico: 'image', sub: `${TE.albums.reduce((s, x) => s + x.count, 0)} photos across ${TE.albums.length} albums`, right: `<span class="tg-cat">${esc(TE.galleryCategory)}</span>`, cls: 'te-panel tg-panel' })}
+        ${panel('Albums', teGallery(), { ico: 'image', right: `<span class="tg-cat">${esc(TE.galleryCategory)}</span>`, cls: 'te-panel tg-panel' })}
       </div>`,
 
   };
@@ -1117,13 +1229,6 @@
               <div class="tb-pop" id="msg-pop" hidden>
                 <div class="tp-head">${icon('chat')}<b>Messages</b><span class="tp-count">${(D.messages || []).length}</span></div>
                 <ul class="tp-list">${(D.messages || []).map((m) => `<li><button type="button" class="tp-item"><span class="tp-ico">${icon('chat')}</span><span class="tp-title">${esc(m.title)}</span><span class="tp-go">${icon('link')}</span></button></li>`).join('')}</ul>
-              </div>
-            </div>
-            <div class="tb-pop-wrap">
-              <button type="button" class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false" aria-controls="notif-pop" data-pop="notif-pop">${icon('bell')}<span class="badge zero">0</span></button>
-              <div class="tb-pop np-pop" id="notif-pop" hidden>
-                <div class="tp-head">${icon('bell')}<b>Notifications</b><span class="tp-count zero">0</span></div>
-                <div class="np-empty"><span class="np-art" aria-hidden="true">${icon('bell')}<i>${icon('check')}</i></span><b>You are up to date!</b><small>No new notifications. We'll let you know when something needs your attention.</small></div>
               </div>
             </div>
           </div>
@@ -1338,6 +1443,12 @@
           <button type="button" class="lb-close" data-close-modal aria-label="Close full screen">${icon('close')}</button></div>
         <div class="lb-stage" data-lb-stage aria-live="polite"></div>
         <div class="lb-thumbs" data-lb-thumbs role="group" aria-label="Photos"></div>`;
+    } else if (name === 'albums') {
+      // All albums by year: the year chips are tabs (opens on the year shown on the page); an album opens its photos full screen
+      const years = tgYears(), at = (y) => TE.albums.map((x, i) => [x, i]).filter(([x]) => x.year === y), cur = (TE.albums[tgAlbum] || {}).year || years[0];
+      body = `${head(`<span class="ea-title">All albums</span>`)}
+        <div class="ta-years" role="group" aria-label="Album year">${years.map((y) => `<button type="button" class="pill" data-ta-jump="${y}" aria-pressed="${y === cur}">${y}<span>${at(y).length}</span></button>`).join('')}</div>
+        <div class="modal-body ta-body" data-ta-body>${years.map((y) => { const L = at(y); return `<section class="ta-year" data-ta-year="${y}"${y === cur ? '' : ' hidden'}><h3>${y}<small>${L.length} ${L.length === 1 ? 'album' : 'albums'} · ${L.reduce((s, [x]) => s + x.count, 0)} photos</small></h3><div class="tg-albums">${L.map(([x, i]) => tgCard(x, i, 'data-ta-album')).join('')}</div></section>`; }).join('')}</div>`;
     } else if (name === 'te-ld' || name === 'te-fun') {
       const ttl = name === 'te-ld' ? 'Learning &amp; Development Events' : 'Fun @ Work Events';
       body = `${head(`<span class="ea-title">${ttl}<small data-tev-count></small></span>`, `<div class="year-nav tev-year"><button type="button" data-tev-step="-1" aria-label="Previous year">${icon('chevL')}</button><b data-tev-year></b><button type="button" data-tev-step="1" aria-label="Next year">${icon('chevR')}</button></div>`)}
@@ -1358,7 +1469,7 @@
       const count = (t) => (HR.colleagues[t] || []).length;
       body = `${head('Wish Your Colleagues', `<label class="field-search sm mwc-search">${icon('search')}<span class="sr-only">Search colleagues</span><input type="search" placeholder="Search colleagues..." data-mwc-search /></label>`)}
         <div class="modal-body">
-          <div class="pill-row" role="group" aria-label="Celebration type">${tabs.map((t, i) => `<button type="button" class="pill" data-mwc-tab="${esc(t)}" aria-pressed="${t === wcTab}">${esc(t)}<span>${count(t)}</span></button>`).join('')}</div>
+          <div class="pill-row" role="group" aria-label="Celebration type">${tabs.map((t, i) => `<button type="button" class="pill" data-mwc-tab="${esc(t)}" aria-pressed="${t === wcTab}">${esc(t)}</button>`).join('')}</div>
           <div class="mwc" data-mwc aria-live="polite"></div>
         </div>`;
     } else return;
@@ -1395,6 +1506,9 @@
       const tevStep = e.target.closest('[data-tev-step]'), tevJump = e.target.closest('[data-tev-jump]');
       if (tevStep && !tevStep.disabled) { bd.dataset.year = +bd.dataset.year + +tevStep.dataset.tevStep; renderTev(bd); return; }
       if (tevJump && !tevJump.disabled) { const sec = $(`[data-tev-month="${tevJump.dataset.tevJump}"]`, bd), b = $('[data-tev-body]', bd); if (sec) b.scrollTo({ top: sec.offsetTop - b.offsetTop, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); return; }
+      const taJump = e.target.closest('[data-ta-jump]'), taAl = e.target.closest('[data-ta-album]');
+      if (taJump) { const y = taJump.dataset.taJump; bd.querySelectorAll('[data-ta-jump]').forEach((c) => c.setAttribute('aria-pressed', String(c === taJump))); bd.querySelectorAll('[data-ta-year]').forEach((s) => { s.hidden = s.dataset.taYear !== y; }); $('[data-ta-body]', bd).scrollTop = 0; return; }
+      if (taAl) { tgAlbum = +taAl.dataset.taAlbum; tgPhoto = 0; renderTg(); openModal('gallery', $('.tg-expand')); return; }
       const saTag = e.target.closest('[data-sa-tag]');
       if (saTag) { saTag.parentElement.querySelectorAll('[data-sa-tag]').forEach((c) => c.setAttribute('aria-pressed', String(c === saTag))); renderSa(bd); return; }
       const eaQ = e.target.closest('[data-ea-q]');
@@ -1462,7 +1576,6 @@
     const list = people.filter((p) => !term || `${p.name} ${p.role}`.toLowerCase().includes(term));
     const n = people.length;
     const summary = `<div class="ea-summary">
-        <span class="ea-sum-medal">${icon('verified')}</span>
         <div class="ea-sum-text"><small>Employee Recognition Program</small><h3>${esc(active)}</h3><span>${n ? `${n} winner${n === 1 ? '' : 's'} recognised` : 'Winners to be announced'}</span></div>
         ${n ? `<div class="ea-stack" aria-hidden="true">${people.slice(0, 5).map((p) => `<span>${erpPhoto(p)}</span>`).join('')}${n > 5 ? `<span class="ea-more">+${n - 5}</span>` : ''}</div>` : ''}
       </div>`;
@@ -1473,7 +1586,6 @@
           <blockquote class="ea-quote">${esc(p.text)}</blockquote>
           <button type="button" class="ea-readmore" data-ea-more aria-expanded="false">Read more${icon('chevR')}</button>
         </div>
-        <span class="ea-medal" aria-hidden="true">${icon('verified')}</span>
       </article>`;
     const content = list.length
       ? `<div class="ea-grid">${list.map(card).join('')}</div>`
@@ -1641,6 +1753,8 @@
     if (wcBtn) { wcTab = wcBtn.dataset.wcTab; renderWc(); return; }
     const erpBtn = e.target.closest('[data-erp-q]');
     if (erpBtn) { erpQ = erpBtn.dataset.erpQ; renderErp(); return; }
+    const tgYr = e.target.closest('[data-tg-year]');
+    if (tgYr) { tgAlbum = Math.max(0, TE.albums.findIndex((x) => x.year === +tgYr.dataset.tgYear)); tgPhoto = 0; renderTg(); $(`[data-tg-year="${tgYr.dataset.tgYear}"]`)?.focus(); return; }
     const tgAl = e.target.closest('[data-tg-album]'), tgPh = e.target.closest('[data-tg-photo]'), tgSt = e.target.closest('[data-tg-step]');
     if (tgAl || tgPh || tgSt) {
       if (tgAl) { tgAlbum = +tgAl.dataset.tgAlbum; tgPhoto = 0; } else if (tgPh) tgPhoto = +tgPh.dataset.tgPhoto; else tgPhoto += +tgSt.dataset.tgStep;
@@ -1772,7 +1886,8 @@
     form.classList.toggle('has-error', !!err);
     form.querySelectorAll('.hf-invalid').forEach((el) => el.classList.remove('hf-invalid'));
     msg.classList.toggle('is-error', !!err);
-    msg.innerHTML = `${icon(err ? 'info' : msg.dataset.ico)}<span>${err || msg.dataset.note}</span>`;
+    // no default note (Make a Request): the spot stays empty until there is an error to show
+    msg.innerHTML = err || msg.dataset.note ? `${icon(err ? 'info' : msg.dataset.ico)}<span>${err || msg.dataset.note}</span>` : '';
   }
   function hfReset(form) {
     form.reset();

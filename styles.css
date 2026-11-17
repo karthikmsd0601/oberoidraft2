@@ -2707,3 +2707,365 @@ html.theme-switch, html.theme-switch *, html.theme-switch *::before, html.theme-
 .greet .greet-date > span { overflow: hidden; text-overflow: ellipsis; }
 .gd-short { display: none; }
 @media (max-width: 1280px) { .gd-long { display: none; } .gd-short { display: inline; } }
+
+/* Home banners: every slide uses the Women's Day slide's text style — same title font, size, weight, line spacing,
+   left alignment and gap to the button (the Festive Greetings slide no longer has its own larger title + subtitle). */
+.fv .fv-copy h3, .fv-event .fv-copy h3 { font-size: clamp(14px, 1.6vw, 24px); font-weight: 700; line-height: 1.22; letter-spacing: -0.02em; }
+.fv .fv-copy .fv-cta { margin-top: clamp(10px, 1.3vw, 18px); }
+@media (max-width: 680px) { .fv .fv-copy h3, .fv-event .fv-copy h3 { font-size: 13px; line-height: 1.25; } }
+
+/* Home shortcut cards: the arrow component (white circle, thin bronze ring, brown chevron), sized as a share of the card width */
+.pc-go { position: absolute; right: 6.5cqw; bottom: 4.6cqw; z-index: 2; width: 12.5cqw; aspect-ratio: 1;
+  display: grid; place-items: center; border-radius: 50%; pointer-events: none;
+  background: #fff; border: 1.5px solid #a8805a; color: #8b6340;
+  box-shadow: 0 4px 10px -6px rgba(109, 73, 42, 0.45);
+  transition: background .3s ease, border-color .3s ease, color .3s ease, transform .3s var(--ease); }
+.pc-go svg { width: 46%; height: 46%; }
+.pc-card:hover .pc-go, .pc-card:focus-visible .pc-go { background: #a8805a; border-color: #a8805a; color: #fff; transform: translateX(2px); }
+[data-theme="dark"] .pc-go { background: #2b2622; border-color: #a8805a; color: #d2a97c; box-shadow: 0 4px 10px -6px rgba(0, 0, 0, 0.7); }
+[data-theme="dark"] .pc-card:hover .pc-go, [data-theme="dark"] .pc-card:focus-visible .pc-go { background: #a8805a; color: #fff; }
+@media (prefers-reduced-motion: reduce) { .pc-card:hover .pc-go { transform: none; } }
+
+
+
+/* Home shortcut cards: equal columns spanning the banner's width. Each card image is the original design card —
+   its exact photo, wave and glass gradient — with the drawn icon, label and arrow erased and the plain glass band
+   shortened, so every card is 100 : 80 (images/tiles/clean, clean/dark). The icon, label and arrow are real elements
+   on top, sized in cqw so every card matches. */
+.pc-row { grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); }
+.pc-card { container-type: inline-size; aspect-ratio: 100 / 80; height: auto; overflow: hidden; border-radius: 6.8% / 8.5%;
+  font: inherit; color: inherit; text-align: left;
+  background: var(--card) center / 100% 100% no-repeat; }
+.pc-body { position: absolute; left: 8.5cqw; right: 26cqw; bottom: 7cqw; z-index: 1; display: grid; justify-items: start; gap: 3cqw; color: #1f2a44; }
+.pc-ico { display: block; width: 9.5cqw; aspect-ratio: 1; color: #2b3652; }
+.pc-ico svg { display: block; width: 100%; height: 100%; }
+.pc-label { font-size: clamp(13px, 6.2cqw, 18px); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; white-space: nowrap; }
+.pc-waves { display: none; } /* the cards carry their own wave; the band keeps only its soft glow */
+[data-theme="dark"] .pc-body { color: #f4ecdf; }
+[data-theme="dark"] .pc-ico { color: #e2b98a; }
+@media (max-width: 1100px) { .pc-row { grid-template-columns: repeat(var(--n, 4), 236px); } }
+@media (max-width: 680px) { .pc-row { grid-template-columns: repeat(var(--n, 4), 214px); } }
+@media (min-width: 1101px) { .pc-row { padding-inline: 0; } }
+
+/* Home banners: a slightly wider text column (ends 42% from the right, still clear of the photo panel at 61%), so every
+   slide's headline — same Inter 700, size and colour on all three — sits on two lines and the three slides read alike */
+@media (min-width: 681px) { .fv .fv-copy { right: 42%; } }
+
+/* Home Birthdays: four colleague cards in one row; the role line takes the spare height, so the department chips and
+   Wish Now! buttons line up across the row even when a role wraps to two lines */
+.bd-w .wc-list .bd-role { flex-grow: 1; }
+
+/* Home Holiday Calendar: the list follows the mini calendar's month (hidden items stay out of the layout) */
+.hol-w .holiday-rail [hidden] { display: none !important; }
+.hol-w .hol-none { display: flex; align-items: center; gap: 10px; padding: 14px 4px; color: var(--muted, #8a7f73); font-size: 13px; font-weight: 500; }
+.hol-w .hol-none svg { width: 18px; height: 18px; flex: none; color: var(--brown, #9c6d41); opacity: .8; }
+.hol-w .holiday-rail .date-item.is-last { border-bottom: 0; } /* no divider under the month's last holiday */
+
+/* Home Holiday Calendar: same height as Today's Menu beside it (height set by fitHolidays); slightly tighter calendar
+   and holiday rows so a month's holidays fit; if a month ever has more, its list scrolls inside the panel */
+.hol-w.hol-fit { display: flex; flex-direction: column; }
+.hol-w.hol-fit > .panel-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding-bottom: 8px; }
+.hol-w.hol-fit .holiday-rail { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.hol-w.hol-fit .mini-cal { flex: none; padding: 8px 12px 4px; }
+.hol-w.hol-fit .mini-cal .cal .dow { padding: 4px 0; }
+.hol-w.hol-fit .mini-cal .cal .day { height: 29px; }
+.hol-w.hol-fit .holiday-rail .date-item { padding-top: 6px; padding-bottom: 6px; }
+
+/* Home Holiday Calendar: smaller desk-calendar date pages (50px -> 40px wide; rings, month strip and date scaled to match) */
+.hol-w .holiday-rail .date-badge { width: 40px; border-radius: 5px; }
+.hol-w .holiday-rail .date-badge::before, .hol-w .holiday-rail .date-badge::after { top: -3px; width: 3px; height: 7px; }
+.hol-w .holiday-rail .date-badge::before { left: 9px; }
+.hol-w .holiday-rail .date-badge::after { right: 9px; }
+.hol-w .holiday-rail .date-badge small { padding: 2px 0 1px; border-radius: 4px 4px 0 0; font-size: 9px; }
+.hol-w .holiday-rail .date-badge b { padding: 2px 0 4px; font-size: 16px; }
+.hol-w .holiday-rail .date-item { gap: 13px; }
+
+/* Home Holiday Calendar spacing: the list lines up with the calendar's contents (12px inset, as in the calendar card),
+   rows get even 9px padding so the month's holidays fill the panel evenly, titles sit centred beside the date page */
+.hol-w.hol-fit > .panel-body { gap: 12px; }
+.hol-w .holiday-rail .date-item, .hol-w.hol-fit .holiday-rail .date-item { padding: 9px 12px; gap: 14px; }
+.hol-w .holiday-rail .date-item .title { font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+.hol-w .hol-none { padding: 14px 12px; }
+
+/* Home mini calendar: date circles 26px in 31px rows, so highlighted dates (holidays, today) keep a clear 5px gap from
+   the rows above and below instead of nearly touching */
+.hol-w .mini-cal .cal .day, .hol-w.hol-fit .mini-cal .cal .day { height: 31px; }
+.hol-w .mini-cal .cal .day span { width: 26px; height: 26px; }
+.hol-w .mini-cal .cal .dow { padding: 4px 0 6px; }
+
+/* Everyday Hero spotlight: no quote-mark graphic, so the quote box has even padding on both sides */
+.rc-spot blockquote { padding-left: 22px; }
+
+/* Home Learning Events: a single event card (sample) filling the panel — date page + title, details, a line about it,
+   then seats left and View details pinned to the bottom */
+.le-w { display: flex; flex-direction: column; }
+.le-w > .panel-body { flex: 1; display: flex; flex-direction: column; }
+.le-card { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 18px; border: 1px solid var(--border); border-radius: var(--r-lg, 14px);
+  background: linear-gradient(160deg, #fbf6ee 0%, var(--white) 55%); }
+.le-top { display: flex; align-items: center; gap: 14px; }
+.le-top h3 { margin-top: 6px; font-size: 16px; font-weight: 700; line-height: 1.3; color: var(--black); }
+.le-top .pj-kicker { font-size: 10.5px; letter-spacing: 0.12em; }
+.le-meta { display: grid; gap: 9px; padding: 12px 0; border-block: 1px dashed var(--border); }
+.le-meta li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text); }
+.le-meta li b { font-weight: 600; color: var(--black); }
+.le-meta svg { width: 16px; height: 16px; flex: none; color: var(--brown); }
+.le-desc { font-size: 13px; line-height: 1.55; color: var(--text-muted, #6b6259); }
+.le-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.le-seats { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--beige); color: var(--brown-ink); font-size: 12px; font-weight: 600; }
+.le-seats svg { width: 14px; height: 14px; }
+[data-theme="dark"] .le-card { background: linear-gradient(160deg, #2a241e 0%, var(--white) 55%); }
+/* (the desktop rule that centred the old "No Events" placeholder in this panel would stop the event card filling it) */
+@media (min-width: 1101px) { .dash-rail > [data-anchor="learning-events"].le-w .panel-body { display: flex; align-items: stretch; } }
+/* Learning Events card: View details centred at the foot (no seats tag) */
+.le-foot { justify-content: center; }
+
+
+/* Send Suggestions: no anonymous switch, so the character counter keeps its place at the right of the box bar */
+.hf-box-bar { justify-content: flex-end; }
+
+/* Send Suggestions (rebuilt like Make a Request): label with a short help line, a writing box that fills the panel,
+   footer with the tip and Send suggestion */
+.hf-sg-group { flex: 1; min-height: 0; }
+.hf-sg-label { display: grid; gap: 6px; cursor: pointer; }
+.hf-sg-label .hf-num svg { width: 13px; height: 13px; }
+.hf-sg-help { padding-left: 31px; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
+.hf-sg .hf-box { min-height: 160px; }
+
+/* People Stories: heading and the dotted route only (no kicker / intro line), so two columns */
+@media (min-width: 1101px) { .pj-intro { grid-template-columns: minmax(0, 1fr) 220px; align-items: center; } }
+
+/* Albums (Training & Events): year tabs + View all above the album cards; "All albums" pop-up grouped by year */
+.tg-albums-head { align-items: center; gap: 12px; flex-wrap: wrap; }
+.tg-years { display: flex; flex-wrap: wrap; gap: 8px; }
+.modal-albums { width: min(1080px, 100%); height: min(860px, calc(100vh - 48px)); }
+.modal-albums .modal-head { flex: none; }
+.ta-years { flex: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 22px; border-bottom: 1px solid var(--grey-4); }
+.ta-body { flex: 1; min-height: 0; overflow-y: auto; }
+.ta-year + .ta-year { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--grey-4); }
+.ta-year h3 { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 700; color: var(--text-strong); }
+.ta-year h3 small { font-family: Inter, system-ui, sans-serif; font-size: 12.5px; font-weight: 500; color: var(--text-2); }
+
+/* "All albums": one year at a time (year chips are tabs) */
+.ta-year[hidden] { display: none; }
+.ta-year + .ta-year { margin-top: 0; padding-top: 0; border-top: 0; }
+
+/* Albums year tabs: no count badge, so even padding on both sides and a shared minimum width, text centred */
+.tg-years .pill { min-width: 66px; padding-left: 16px; padding-right: 16px; justify-content: center; }
+
+/* Events "Up next" banner, compact: smaller date page, title and countdown, tighter padding (106px -> ~76px tall) */
+.fw-next { gap: 14px; padding: 12px 16px; border-radius: 14px; }
+.fw-next .desk-date.lg { width: 48px; }
+.fw-next .desk-date.lg::before { left: 11px; } .fw-next .desk-date.lg::after { right: 11px; }
+.fw-next .desk-date.lg::before, .fw-next .desk-date.lg::after { top: -3px; width: 3px; height: 7px; }
+.fw-next .desk-date.lg small { font-size: 10px; padding: 3px 0 2px; }
+.fw-next .desk-date.lg b { font-size: 21px; padding: 3px 0 5px; }
+.fw-next-t { gap: 2px; }
+.fw-next .pj-kicker { font-size: 10.5px; }
+.fw-next-t h3 { font-size: 17px; }
+.fw-when { font-size: 12px; }
+.fw-count { padding: 6px 11px; border-radius: 11px; }
+.fw-count b { font-size: 21px; }
+.fw-count span { font-size: 10px; }
+
+/* Events list: three cards under "Up next" (the rest are in View all), so no scroll area or bottom fade */
+.fw-list { max-height: none; overflow: visible; padding-right: 0; -webkit-mask: none; mask: none; }
+.fw-list ul { margin-bottom: 0; }
+/* the three cards share the panel's spare height evenly (each month group grows by its number of cards) */
+.fw-list { display: flex; flex-direction: column; }
+.fw-list ul { flex-basis: 0; grid-auto-rows: 1fr; }
+
+/* Events list: compact cards (smaller date page, tighter padding); the panel's spare height is spread evenly around the
+   month groups instead of stretching the cards */
+.fw-list { justify-content: space-evenly; }
+.fw-list ul { flex-basis: auto; grid-auto-rows: auto; }
+.fw-group { display: grid; }
+.fw-item { gap: 12px; padding: 6px 12px 6px 7px; border-radius: 12px; }
+.fw-item .desk-date { width: 40px; }
+.fw-item .desk-date::before, .fw-item .desk-date::after { top: -3px; width: 3px; height: 7px; }
+.fw-item .desk-date::before { left: 9px; } .fw-item .desk-date::after { right: 9px; }
+.fw-item .desk-date small { font-size: 9px; padding: 2px 0 1px; }
+.fw-item .desk-date b { font-size: 16px; padding: 2px 0 4px; }
+.fw-item-t b { font-size: 14px; }
+.fw-item-t small { font-size: 11.5px; }
+
+/* Events list, packed to the top with one rhythm: 16px banner -> first month, 8px month label -> cards and between
+   cards, 16px between month groups; labels line up with the card edges (no sticky / fade, nothing scrolls here) */
+.fw { align-content: start; grid-template-rows: auto auto; }
+.fw-list { justify-content: flex-start; gap: 16px; }
+.fw-group { gap: 8px; }
+.fw-list ul { gap: 8px; margin: 0; }
+.fw-month { position: static; padding: 0 2px; line-height: 1.2; background: none; }
+
+/* Events panel ends right after its last card (no empty block at the bottom); the calendar beside it keeps its height */
+.c-8:has(> .fw-panel) { align-self: start; }
+.fw-panel { height: auto; }
+
+/* Events "Up next" banner, a little smaller again (~83px -> ~70px tall) */
+.fw-next { gap: 12px; padding: 9px 14px; border-radius: 13px; }
+.fw-next .desk-date.lg { width: 42px; }
+.fw-next .desk-date.lg::before { left: 10px; } .fw-next .desk-date.lg::after { right: 10px; }
+.fw-next .desk-date.lg small { font-size: 9px; padding: 2px 0 1px; }
+.fw-next .desk-date.lg b { font-size: 18px; padding: 2px 0 4px; }
+.fw-next .pj-kicker { font-size: 10px; }
+.fw-next-t h3 { font-size: 15.5px; }
+.fw-when { font-size: 11.5px; }
+.fw-when svg { width: 13px; height: 13px; }
+.fw-count { padding: 5px 9px; border-radius: 10px; }
+.fw-count b { font-size: 18px; }
+.fw-count span { font-size: 9.5px; }
+
+/* ======================================================================
+   Learning Events hub (Training & Events): Today card + "Coming up" timeline | inset month calendar
+   ====================================================================== */
+.ld3-panel .panel-body.ld3 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); gap: 22px; padding: 18px; }
+.ld3-main { min-width: 0; display: grid; align-content: start; gap: 18px; }
+
+/* Today — compact horizontal brown card */
+.ld3-today { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 18px;
+  padding: 16px 18px; border-radius: 16px; color: #fff;
+  background: radial-gradient(120% 140% at 100% 0%, rgba(255, 223, 133, 0.28), rgba(255, 223, 133, 0) 55%), linear-gradient(125deg, #a87443 0%, #8a5a2f 55%, #6f4523 100%);
+  box-shadow: 0 18px 30px -22px rgba(109, 73, 42, 0.8); }
+.ld3-today::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.14) 1px, transparent 1.6px) 0 0 / 12px 12px;
+  -webkit-mask: linear-gradient(90deg, transparent 30%, #000); mask: linear-gradient(90deg, transparent 30%, #000); }
+.ld3-day { display: grid; justify-items: center; align-content: center; width: 74px; height: 74px; border-radius: 14px; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.26); }
+.ld3-day b { font-family: 'Playfair Display', Georgia, serif; font-size: 32px; font-weight: 700; line-height: 1; }
+.ld3-day span { margin-top: 4px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #f6dcb8; }
+.ld3-today-main { min-width: 0; display: grid; gap: 8px; }
+.ld3-today .pj-kicker { color: #f6dcb8; font-size: 10.5px; }
+.ld3-today-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.ld3-today-list li { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; row-gap: 4px; }
+.ld3-today-list b { font-size: 17px; font-weight: 700; line-height: 1.25; }
+.ld3-today-list small { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: rgba(255, 255, 255, 0.85); }
+.ld3-today-list small svg { width: 13px; height: 13px; }
+.ld3-time { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; background: #fff8ee; color: #6f4523; font-size: 12px; font-weight: 700; }
+.ld3-time svg { width: 13px; height: 13px; }
+.ld3-free { font-size: 13px; color: var(--text-2); }
+.ld3-today .ld3-free { color: rgba(255, 255, 255, 0.85); }
+
+/* Coming up — vertical timeline */
+.ld3-h { display: flex; align-items: center; justify-content: space-between; margin: 0 0 10px; }
+.ld3-h b { font-size: 11.5px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brown-ink); }
+.ld3-more { display: inline-flex; align-items: center; gap: 2px; padding: 0; border: 0; background: none; color: var(--brown); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.ld3-more svg { width: 14px; height: 14px; }
+.ld3-tl { position: relative; margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.ld3-tl::before { content: ""; position: absolute; left: 63px; top: 14px; bottom: 14px; width: 2px; border-radius: 2px; background: linear-gradient(var(--award-line, #e3cfb3), rgba(227, 207, 179, 0.25)); }
+.ld3-ev { position: relative; display: grid; grid-template-columns: 46px 14px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 12px 6px 0; border-radius: 14px; transition: background .2s ease; }
+.ld3-ev:hover { background: var(--canvas); }
+.ld3-when { display: grid; justify-items: center; line-height: 1.05; }
+.ld3-when small { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
+.ld3-when b { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; font-weight: 700; color: var(--text-strong); }
+.ld3-dot { justify-self: center; width: 12px; height: 12px; border-radius: 50%; background: var(--white); border: 2.5px solid var(--brown); box-shadow: 0 0 0 4px var(--white); z-index: 1; }
+.ld3-ev:first-child .ld3-dot { background: var(--brown); }
+.ld3-card { min-width: 0; display: grid; gap: 4px; padding: 10px 14px; border: 1px solid var(--grey-4); border-radius: 12px; background: linear-gradient(170deg, var(--white), var(--canvas)); }
+.ld3-card b { font-size: 14px; font-weight: 700; color: var(--text-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ld3-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--text-2); }
+.ld3-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.ld3-meta svg { width: 13px; height: 13px; color: var(--brown); }
+.ld3-in { padding: 3px 10px; border-radius: 999px; background: var(--beige); color: var(--brown-ink); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.ld3-ev.flash .ld3-card { border-color: var(--brown); box-shadow: 0 0 0 3px rgba(156, 109, 65, 0.18); }
+
+/* Right — inset calendar card + legend */
+.ld3-side { min-width: 0; display: grid; align-content: start; gap: 10px; padding: 12px; border: 1px solid var(--grey-4); border-radius: 16px; background: linear-gradient(180deg, #fcf9f5, var(--white)); }
+.ld3-cal .panel-head { padding: 2px 4px 10px; border-bottom: 0; background: none; }
+.ld3-cal .panel-head .ph-ico { display: none; }
+.ld3-cal .panel-head h2 { font-size: 15px; }
+.ld3-cal .panel-body { padding: 0; }
+.ld3-cal .cal .day { height: 36px; }
+.ld3-legend { display: flex; gap: 16px; padding: 10px 6px 2px; border-top: 1px solid var(--grey-4); font-size: 11.5px; color: var(--text-2); }
+.ld3-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ld3-legend i { width: 10px; height: 10px; border-radius: 50%; }
+.ld3-legend .lg-has { background: var(--brown); }
+.ld3-legend .lg-today { border: 1.5px solid var(--brown); }
+
+[data-theme="dark"] .ld3-side { background: linear-gradient(180deg, #2a241e, var(--white)); }
+[data-theme="dark"] .ld3-card { background: linear-gradient(170deg, #2a241e, #231f1b); }
+[data-theme="dark"] .ld3-dot { box-shadow: 0 0 0 4px var(--white); }
+[data-theme="dark"] .ld3-time { background: #f3e6d2; }
+
+@media (max-width: 1100px) { .ld3-panel .panel-body.ld3 { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 680px) {
+  .ld3-today { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .ld3-day { width: auto; height: auto; padding: 8px 12px; grid-auto-flow: column; gap: 8px; justify-content: start; align-items: baseline; }
+  .ld3-day b { font-size: 24px; }
+  .ld3-ev { grid-template-columns: 40px 12px minmax(0, 1fr); }
+  .ld3-in { grid-column: 3; justify-self: start; margin-top: -2px; }
+  .ld3-tl::before { left: 51px; }
+}
+.ld3-side { align-self: start; } /* the calendar card ends after its legend */
+
+/* Learning Events hub — empty states */
+.ld3-today .ld3-free b { color: #fff; font-weight: 700; }
+.ld3-empty { display: grid; justify-items: center; align-content: center; gap: 8px; min-height: 230px; padding: 24px; text-align: center;
+  border: 1.5px dashed var(--grey-3, #e2ddd6); border-radius: 16px; background: linear-gradient(180deg, #fcf9f5, var(--white)); }
+.ld3-empty-ico { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 4px; background: var(--beige); color: var(--brown); box-shadow: 0 0 0 6px rgba(234, 225, 214, 0.45); }
+.ld3-empty-ico svg { width: 24px; height: 24px; }
+.ld3-empty b { font-size: 15px; font-weight: 700; color: var(--text-strong); }
+.ld3-empty p { max-width: 34ch; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+.ld3-empty .btn { margin-top: 6px; }
+[data-theme="dark"] .ld3-empty { background: linear-gradient(180deg, #2a241e, var(--white)); }
+
+/* Fun @ Work events hub — reuses the Learning Events hub; the Up next card adds a countdown on the right */
+.fn3-next { grid-template-columns: auto minmax(0, 1fr) auto; }
+.fn3-title { font-size: 19px; font-weight: 700; line-height: 1.25; }
+.fn3-date { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: rgba(255, 255, 255, 0.85); }
+.fn3-date svg { width: 13px; height: 13px; }
+.fn3-count { display: grid; justify-items: center; padding: 8px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.24); }
+.fn3-count b { font-size: 26px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.fn3-count span { margin-top: 3px; font-size: 10.5px; font-weight: 600; color: rgba(255, 255, 255, 0.85); white-space: nowrap; }
+.fn3-next.flash { box-shadow: 0 0 0 3px rgba(156, 109, 65, 0.35), 0 18px 30px -22px rgba(109, 73, 42, 0.8); }
+@media (max-width: 680px) { .fn3-next { grid-template-columns: minmax(0, 1fr); } .fn3-count { justify-self: start; grid-auto-flow: column; gap: 6px; align-items: baseline; } }
+.ld3-main:has(> .ld3-empty:only-child) { align-content: stretch; } /* empty state fills the column beside the calendar */
+
+/* Events hubs, empty state: the empty card fills the column but never makes it taller than the calendar beside it */
+.ld3-empty { min-height: 150px; }
+.ld3-main:has(> .ld3-empty) { grid-template-rows: auto 1fr; align-content: stretch; }
+.ld3-main:has(> .ld3-empty:only-child) { grid-template-rows: 1fr; }
+
+/* Events hubs: the timeline cards share the column's spare height, so the last card ends level with the calendar */
+.ld3-main:has(> .ld3-up) { grid-template-rows: auto 1fr; align-content: stretch; }
+.ld3-up { display: flex; flex-direction: column; min-height: 0; }
+.ld3-up .ld3-tl { flex: 1; grid-auto-rows: 1fr; }
+.ld3-ev .ld3-card { align-self: stretch; align-content: center; }
+.ld3-up .ld3-ev { padding-top: 0; padding-bottom: 0; } /* cards reach the row edges, so the last one meets the calendar bottom */
+.pj-foot { justify-content: flex-end; } /* People Stories: only the View all stories button, kept at the right */
+
+/* pills without a count badge (e.g. Wish Your Colleagues tabs): even padding, text centred */
+.pill:not(:has(> span)) { padding-left: 16px; padding-right: 16px; justify-content: center; }
+
+/* Phones: banner slides keep exactly the carousel's width. (The wide 1060:200 shape plus the minimum height used to
+   stretch each slide to ~1000px, so neighbouring slides' photos and text overlapped.) */
+@media (max-width: 680px) {
+  .carousel .slide { aspect-ratio: auto; width: 100%; height: 200px; min-height: 0; }
+}
+@media (max-width: 680px) {
+  .carousel .fv .fv-copy { left: 5%; right: 50%; }   /* text column stops before the photo */
+  .carousel .fv .fv-copy h3 { font-size: 13px; line-height: 1.3; }
+}
+
+/* ======================================================================
+   Consistency pass — mobile spacing + dark mode
+   ====================================================================== */
+/* Phones: every panel uses the same 14px inner padding (forms and events hubs used 18px) */
+@media (max-width: 680px) {
+  .hf-panel .panel-body { padding: 14px 14px 0; }
+  .hf-foot { margin: 0 -14px; padding: 12px 14px; }
+  .hf-done { inset: -14px -14px 0; }
+  .ld3-panel .panel-body.ld3 { padding: 14px; gap: 16px; }
+}
+/* readable secondary text in both themes */
+.le-desc { color: var(--text-2); }
+/* small labels on the brown event cards: a touch lighter for contrast */
+.ld3-today .pj-kicker, .ld3-day span { color: #ffeedd; }
+/* Corporate "View all" pill: brown in dark mode instead of an inverted bright pill */
+[data-theme="dark"] .md-all { background: var(--brown); color: #fff8ee; }
+[data-theme="dark"] .md-all-ico { background: #fff2e0; color: var(--brown); }
+/* Phones: the featured People Story title may use three lines (it was cut off at two) */
+@media (max-width: 680px) { .pj-feat .pj-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; } }
+@media (max-width: 680px) {
+  .pj-grid:not(.is-filtered) .pj-feat .pj-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+  /* "All People Stories" category chips: one swipeable row instead of running off the pop-up */
+  .sa-bar { min-width: 0; flex-wrap: wrap; }
+  .sa-bar .pill-row { min-width: 0; max-width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .sa-bar .pill-row::-webkit-scrollbar { display: none; }
+  .sa-bar .pill { flex: none; }
+}
