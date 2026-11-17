@@ -333,7 +333,7 @@ window.APP_DATA = {
   training: {
     sections: [
       { id: 'learning-events', label: 'Learning Events' },
-      { id: 'fun-at-work', label: 'Fun @ Work' },
+      { id: 'fun-at-work', label: 'Fun Events' },
       { id: 'photo-gallery', label: 'Photo Gallery' },
     ],
     galleryCategory: 'Events',

@@ -3118,3 +3118,33 @@ html.theme-switch, html.theme-switch *, html.theme-switch *::before, html.theme-
 [data-theme="dark"] .yp-menu { border-color: rgba(226, 185, 138, 0.18); box-shadow: 0 22px 40px -20px rgba(0, 0, 0, 0.8); }
 [data-theme="dark"] .yp-menu li:hover, [data-theme="dark"] .yp-menu li:focus { background: rgba(226, 185, 138, 0.1); }
 @media (prefers-reduced-motion: reduce) { .yp-menu { animation: none; } .yp-btn svg { transition: none; } }
+
+/* ======================================================================
+   Top bar greeting (redesign): desk-calendar date tile · "Good afternoon, Arjun" · quiet date line
+   ====================================================================== */
+.greet2 { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.gt-tile { width: 46px; flex: none; display: grid; text-align: center; line-height: 1; overflow: hidden; border-radius: 12px;
+  background: var(--white); border: 1px solid var(--award-line, #e3cfb3); box-shadow: 0 8px 16px -12px rgba(109, 73, 42, 0.6); }
+.gt-tile small { padding: 4px 0 3px; background: linear-gradient(145deg, #b8854c, #8c5a28); color: #fff8ee; font-size: 9.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.gt-tile b { padding: 5px 0 6px; font-family: 'Playfair Display', Georgia, serif; font-size: 20px; font-weight: 700; color: var(--black); }
+.gt-text { min-width: 0; }
+.greet2 h1 { font-size: 20px; font-weight: 500; line-height: 1.2; letter-spacing: -0.015em; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.greet2 h1 b { font-family: 'Playfair Display', Georgia, serif; font-size: 1.12em; font-weight: 700; letter-spacing: 0; color: var(--brown-ink); }
+.greet2 .gt-date { margin-top: 3px; font-size: 12.5px; font-weight: 500; color: var(--muted-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-theme="dark"] .gt-tile { border-color: rgba(226, 185, 138, 0.3); box-shadow: 0 8px 16px -12px rgba(0, 0, 0, 0.8); }
+[data-theme="dark"] .greet2 h1 b { color: #e9c99f; }
+@media (max-width: 680px) {
+  .greet2 { gap: 10px; }
+  .gt-tile { width: 40px; border-radius: 10px; }
+  .gt-tile small { font-size: 8.5px; padding: 3px 0 2px; }
+  .gt-tile b { font-size: 17px; padding: 4px 0 5px; }
+  .greet2 h1 { font-size: 17px; }
+  .greet2 .gt-date { font-size: 11.5px; margin-top: 2px; }
+}
+
+/* "All applications" pop-up (HR & Admin → Applications → View all) */
+.modal-apps { width: min(1040px, 100%); }
+.modal-apps .modal-head { gap: 14px; }
+.modal-apps .modal-close { margin-left: 0; }
+.ap-all { overflow-y: auto; }
+.ap-all [data-ap-item][hidden] { display: none; }

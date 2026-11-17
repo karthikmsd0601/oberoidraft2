@@ -104,7 +104,7 @@
     `<section class="panel ${cls}"${anchor ? ` data-anchor="${anchor}"` : ''}>${panelHead(title, right, sub, ico)}<div class="panel-body${flush ? ' flush' : ''}">${body}</div>${foot ? `<div class="panel-foot">${foot}</div>` : ''}</section>`;
   // Decorative, text-free placeholder for panels that are empty on the live site
   const blank = (ico) => `<div class="empty blank"><span class="em-ico">${icon(ico)}</span></div>`;
-  const sectionHead = (title, sub, right = '') => `<div class="section-head"><div><h2>${title}</h2><p class="sub">${sub}</p></div>${right}</div>`;
+  const sectionHead = (title, sub, right = '') => `<div class="section-head"><div><h2>${title}</h2>${sub ? `<p class="sub">${sub}</p>` : ''}</div>${right}</div>`;
   const empty = (title, sub = '', ico = 'image') =>
     `<div class="empty"><span class="em-ico">${icon(ico)}</span><strong>${title}</strong>${sub ? `<span>${sub}</span>` : ''}</div>`;
   const searchBox = (ph, attr = '', cls = '') => `<label class="field-search ${cls}">${icon('search')}<span class="sr-only">${ph}</span><input type="search" placeholder="${ph}" ${attr} /></label>`;
@@ -802,9 +802,12 @@
   }
 
   // Applications: logo tiles with the app name
-  const hrApps = () => panel('Applications', `<ul class="ap-grid">${HR.apps.map((a) => `<li><button type="button" class="ap-tile" title="Open ${esc(a.name)}">
+  // Applications: the first AP_SHOW tiles on the page; "View all" opens every application (with search) in a pop-up
+  const AP_SHOW = 8;
+  const apTile = (a) => `<li data-ap-item data-name="${esc(a.name.toLowerCase())}"><button type="button" class="ap-tile" title="Open ${esc(a.name)}">
       <span class="ap-logo"><img src="${esc(a.logo)}" alt="${esc(a.name)}" loading="lazy" /></span>
-      <span class="ap-name">${esc(a.name)}${icon('arrowR')}</span></button></li>`).join('')}</ul>`, { ico: 'apps', anchor: 'applications' });
+      <span class="ap-name">${esc(a.name)}${icon('arrowR')}</span></button></li>`;
+  const hrApps = () => panel('Applications', `<ul class="ap-grid">${HR.apps.slice(0, AP_SHOW).map(apTile).join('')}</ul>`, { ico: 'apps', anchor: 'applications', right: viewAll('View all', 'modal:apps') });
 
   // ERP Winners: quarter pills; winner cards with quote
   let erpQ = Object.keys(HR.erp)[0];
@@ -1001,7 +1004,7 @@
         </li>`;
       }).join('')}</ol>` : `<div class="ld3-empty"><span class="ld3-empty-ico">${icon('school')}</span><b>No upcoming sessions</b><p>New training sessions and workshops will appear here as soon as they are scheduled.</p></div>`;
     return `<section class="panel te-panel ld3-panel">
-      ${panelHead('Learning Events', viewAll('View all', 'modal:te-ld'), '', 'school')}
+      ${panelHead('Learning Events', viewAll('View all', 'modal:te-ld'), 'Explore upcoming training sessions and boost your skills', 'school')}
       <div class="panel-body ld3">
         <div class="ld3-main">
           ${todayCard}
@@ -1051,7 +1054,7 @@
         </div>`;
     }
     return `<section class="panel te-panel ld3-panel fn3-panel">
-      ${panelHead('Events', viewAll('View all', 'modal:te-fun'), '', 'celebration')}
+      ${panelHead('Fun Events', viewAll('View all', 'modal:te-fun'), 'Engage in exciting activities and make work more fun', 'celebration')}
       <div class="panel-body ld3">
         <div class="ld3-main">${left}</div>
         <aside class="ld3-side">
@@ -1184,22 +1187,19 @@
 
     'training-events': () => `
       <div class="section te-section" data-anchor="learning-events">
-        ${sectionHead('Learning &amp; Development', 'Explore upcoming training sessions and boost your skills')}
         <div class="row">
           <div class="c-12">${ldHub()}</div>
         </div>
       </div>
 
       <div class="section te-section" data-anchor="fun-at-work">
-        ${sectionHead('Fun @ Work', 'Engage in exciting activities and make work more fun')}
         <div class="row">
           <div class="c-12">${funHub()}</div>
         </div>
       </div>
 
       <div class="section te-section" data-anchor="photo-gallery">
-        ${sectionHead('Photo Gallery', 'Relive memories from events and milestones')}
-        ${panel('Albums', teGallery(), { ico: 'image', right: `<span class="tg-cat">${esc(TE.galleryCategory)}</span>`, cls: 'te-panel tg-panel' })}
+        ${panel('Photo Gallery', teGallery(), { ico: 'image', sub: 'Relive memories from events and milestones', cls: 'te-panel tg-panel' })}
       </div>`,
 
   };
@@ -1223,12 +1223,17 @@
           <div class="subnav-wrap${open ? ' open' : ''}" id="${n.id}-subnav"><ul class="subnav">${subs[n.id].map((s) => `<li><a href="#${n.id}/${s.id}" data-sec-link="${s.id}"${open ? '' : ' tabindex="-1"'}>${s.label}</a></li>`).join('')}</ul></div></li>`;
       }).join('')}</ul></nav>`;
   }
+  // time-of-day greeting for the top bar
+  const greetWord = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
   function renderTopbar(active) {
     const d = today;
     $('#topbar').innerHTML = `
       <div class="topbar-inner">
         <button type="button" class="menu-btn" aria-label="Open navigation" data-open-nav>${icon('menu')}</button>
-        <div class="greet"><h1>Hello, <b>${esc(D.user.name)}!</b></h1><p class="greet-date">${icon('calendar')}<span class="gd-long">Today is ${DAYS[d.getDay()]} ${ord(d.getDate())} ${MONTHS[d.getMonth()]} ${d.getFullYear()}</span><span class="gd-short">Today · ${DAYS[d.getDay()].slice(0, 3)}, ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}</span></p></div>
+        <div class="greet greet2">
+          <div class="gt-text"><h1><span class="gt-hi">${greetWord()},</span> <b>${esc(String(D.user.name).split(' ')[0])}</b></h1>
+            <p class="gt-date"><span class="gd-long">${DAYS[d.getDay()]} · ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}</span><span class="gd-short">${DAYS[d.getDay()].slice(0, 3)}, ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}</span></p></div>
+        </div>
         <div class="top-actions">
           <label class="search">${icon('search')}<span class="sr-only">Search</span><input type="search" placeholder="Search here..." /></label>
           <div class="tb-group">
@@ -1458,6 +1463,10 @@
       const years = tgYears(), at = (y) => TE.albums.map((x, i) => [x, i]).filter(([x]) => x.year === y), cur = (TE.albums[tgAlbum] || {}).year || years[0];
       body = `${head(`<span class="ea-title">All albums</span>`)}
         <div class="modal-body ta-body" data-ta-body>${years.map((y) => { const L = at(y); return `<section class="ta-year" data-ta-year="${y}"${y === cur ? '' : ' hidden'}><h3>${y}</h3><div class="tg-albums">${L.map(([x, i]) => tgCard(x, i, 'data-ta-album')).join('')}</div></section>`; }).join('')}</div>`;
+    } else if (name === 'apps') {
+      body = `${head('<span class="ea-title">All applications</span>', `<label class="field-search sm mwc-search">${icon('search')}<span class="sr-only">Search applications</span><input type="search" placeholder="Search applications..." data-apps-search /></label>`)}
+        <div class="modal-body ap-all"><ul class="ap-grid">${HR.apps.map(apTile).join('')}</ul>
+          <div data-apps-empty hidden>${empty('No applications found', 'Try a different name', 'apps')}</div></div>`;
     } else if (name === 'te-ld' || name === 'te-fun') {
       const ttl = name === 'te-ld' ? 'Learning &amp; Development Events' : 'Fun @ Work Events';
       body = `${head(`<span class="ea-title">${ttl}<small data-tev-count></small></span>`, `<div class="year-nav tev-year"><button type="button" data-tev-step="-1" aria-label="Previous year">${icon('chevL')}</button><b data-tev-year></b><button type="button" data-tev-step="1" aria-label="Next year">${icon('chevR')}</button></div>`)}
@@ -1892,6 +1901,12 @@
   }, true);
   document.addEventListener('input', (e) => {
     const q = e.target.value.trim().toLowerCase();
+    if (e.target.matches('[data-apps-search]')) {
+      const bd = e.target.closest('.modal-backdrop'); let n = 0;
+      bd.querySelectorAll('[data-ap-item]').forEach((li) => { const on = li.dataset.name.includes(q); li.hidden = !on; if (on) n++; });
+      $('[data-apps-empty]', bd).hidden = n > 0;
+      return;
+    }
     if (e.target.matches('[data-filter-jobs]')) {
       e.target.closest('section').querySelectorAll('.job').forEach((j) => { j.hidden = !$('h3', j).textContent.toLowerCase().includes(q); });
     }
