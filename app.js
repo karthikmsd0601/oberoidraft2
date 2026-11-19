@@ -58,6 +58,7 @@
   P.laptop = 'M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z';
   P.more = 'M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z';
   P.check = 'M9 16.17 4.83 12l-1.42 1.41L9 19 21 7.59 19.59 6.17z';
+  P.eco = 'M6.05 8.05c-2.73 2.73-2.73 7.15-.02 9.88 1.47-3.4 4.09-6.24 7.36-7.93-2.77 2.34-4.71 5.61-5.39 9.32 2.6 1.23 5.8.78 7.95-1.37C19.43 14.47 20 4 20 4S9.53 4.57 6.05 8.05z';
   P.info = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z';
   P.lock = 'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z';
   P.bulb = 'M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z';
@@ -364,7 +365,8 @@
   // photo = Home panel: stock birthday photo under a brown overlay instead of the beige gradient.
   const bdayGreeting = (photo = false) => `<div class="bd-intro${photo && H.birthdays.bg ? ' bd-photo' : ''}"${photo && H.birthdays.bg ? ` style="--bd-bg:url('${esc(H.birthdays.bg)}')"` : ''}>${ORNAMENT}<p>${esc(H.birthdays.sub)}</p>${ORNAMENT}</div>`;
   // Home Birthdays: one row of four colleague cards (same design as HR "Wish Your Colleagues", with the department chip)
-  const dashBirthdays = () => secPanel('celebrations', H.birthdays.title, `<ul class="bd-list wc-list">${H.birthdays.people.concat(H.birthdays.more || []).slice(0, 4).map((p) => wcCard(p, 'cake')).join('')}</ul>`, { right: viewAll('View all', 'modal:birthdays'), ico: 'cake', cls: 'bd-w' });
+  // Home celebrations: the same "Wish Your Colleagues" section as HR & Admin (anchor kept for the Celebrations shortcut)
+  const dashBirthdays = () => hrWish({ anchor: 'celebrations', cls: 'dash-w' });
 
   // Today's Menu (Home + Weekly Menu pop-up): illustrated meal tabs and a clean two-column dish list
   // with hairline dividers and right-aligned quantities.
@@ -410,7 +412,7 @@
     ['rc-erp', `<div class="rc-erp-intro">
         <h2>${esc(RC.erp.title)}</h2>
         <p class="rc-period">${icon('calendar')}${esc(RC.erp.period)}</p>
-        <button type="button" class="rc-link">${esc(RC.erp.cta)}${icon('arrowR')}</button></div>
+        <a class="rc-link" href="#hr-admin/erp-winners">${esc(RC.erp.cta)}${icon('arrowR')}</a></div>
       <ul class="rc-winners">${RC.erp.winners.map((n) => `<li class="rc-winner"><span class="rc-wband" aria-hidden="true"></span>
         <span class="rc-wav">${rcPhoto(n)}</span>
         <b>${esc(n)}</b><button type="button" class="btn btn-primary btn-xs">Wish Now!</button></li>`).join('')}</ul>`],
@@ -469,9 +471,27 @@
 
   const dashJobs = () => secPanel('job-postings', 'Job Postings', jobsCards(H.jobs), { right: searchBox('Search by title...', 'data-filter-jobs', 'sm'), foot: viewAll('View More', '#hr-admin/jobPostings'), ico: 'work', cls: 'jobs-w' });
 
-  // Learning Events: one event card (H.learningEvent, a sample) — date page, title, when / where / host, a line about it,
-  // and a centred link to Training & Events. Falls back to the "No Events" placeholder when there is none.
-  const leCard = (e) => {
+  // Learning Events: the next upcoming session (date page, title, when / where / host) and, below it, the one after.
+  // Sources: the Home sample (H.learningEvent) + the Learning & Development list; past dates and duplicates are dropped.
+  const leUp = () => {
+    const kept = [];
+    [H.learningEvent, ...(D.learningEvents || [])].filter((e) => e && e.date && daysUntil(e.date) >= 0)
+      .sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : 0))
+      .forEach((e) => { const t = e.title.toLowerCase(); if (!kept.some((k) => k.date === e.date && (k.title.toLowerCase().includes(t) || t.includes(k.title.toLowerCase())))) kept.push(e); });
+    return kept;
+  };
+  const leNext = (e) => {
+    const t = parse(e.date), n = daysUntil(e.date);
+    return `<div class="le-next">
+        <p class="le-next-h"><span>Next event</span><span class="le-next-in">${whenText(n)}</span></p>
+        <a class="le-next-row" href="#training-events">
+          <span class="desk-date sm${t.getMonth() !== today.getMonth() ? ' later' : ''}"><small>${MON[t.getMonth()]}</small><b>${String(t.getDate()).padStart(2, '0')}</b></span>
+          <span class="le-next-t"><b>${esc(e.title)}</b><small>${icon('event')}${DAYS[t.getDay()].slice(0, 3)}, ${t.getDate()} ${MON[t.getMonth()]}${e.time ? ` · ${esc(e.time)}` : ''}</small>${e.place ? `<small>${icon('place')}${esc(e.place)}</small>` : ''}</span>
+          ${icon('chevR')}
+        </a>
+      </div>`;
+  };
+  const leCard = (e, next) => {
     const t = parse(e.date), n = daysUntil(e.date);
     return `<article class="le-card">
       <div class="le-top"><span class="desk-date lg${t.getMonth() !== today.getMonth() ? ' later' : ''}"><small>${MON[t.getMonth()]}</small><b>${String(t.getDate()).padStart(2, '0')}</b></span>
@@ -481,11 +501,10 @@
         ${e.place ? `<li>${icon('place')}<span>${esc(e.place)}</span></li>` : ''}
         ${e.host ? `<li>${icon('supervisor')}<span>Conducted by <b>${esc(e.host)}</b></span></li>` : ''}
       </ul>
-      ${e.desc ? `<p class="le-desc">${esc(e.desc)}</p>` : ''}
-      <div class="le-foot"><a class="btn btn-primary btn-xs" href="#training-events">View details</a></div>
+      ${next ? leNext(next) : ''}
     </article>`;
   };
-  const dashLearning = () => secPanel('learning-events', 'Learning Events', H.learningEvent ? leCard(H.learningEvent) : empty('No Events', '', 'event'), { right: viewAll('View all', '#training-events'), ico: 'article', cls: 'le-w' });
+  const dashLearning = () => { const up = leUp(); return secPanel('learning-events', 'Learning Events', up.length ? leCard(up[0], up[1]) : empty('No Events', '', 'event'), { right: viewAll('View all', '#training-events'), ico: 'article', cls: 'le-w' }); };
 
   // Same desk-calendar date pages as the "View all" pop-up (later months use the beige strip). The list shows only the
   // month the mini calendar is on (renderMiniCal filters it), with a short note for a month without holidays.
@@ -773,18 +792,18 @@
   // the line under the heading, per tab
   const WC_SUB = { Birthdays: 'Wishing our birthday stars a year full of joy', 'New Joiners': 'Say Hello! to new energy', 'Work Anniversaries': 'Celebrating years of dedication and teamwork' };
   let wcTab = Object.keys(HR.colleagues)[0], wcMinH = 0;
-  const hrWish = () => panel('Wish Your Colleagues', `<div class="pill-row" role="group" aria-label="Celebration type">${Object.keys(HR.colleagues).map((t) => `<button type="button" class="pill" data-wc-tab="${esc(t)}" aria-pressed="${t === wcTab}">${esc(t)}</button>`).join('')}</div>
-      <div class="wc-box" data-wc aria-live="polite"></div>`, { ico: 'celebration', anchor: 'wish-your-colleagues', sub: `<span data-wc-sub>${esc(WC_SUB[wcTab] || '')}</span>`, right: viewAll('View all', 'modal:colleagues') });
-  // One colleague card (Home Birthdays design): photo + badge, serif name, ornament, role, department (+ years), Wish Now!
+  const hrWish = (o = {}) => panel('Wish Your Colleagues', `<div class="pill-row" role="group" aria-label="Celebration type">${Object.keys(HR.colleagues).map((t) => `<button type="button" class="pill" data-wc-tab="${esc(t)}" aria-pressed="${t === wcTab}">${esc(t)}</button>`).join('')}</div>
+      <div class="wc-box" data-wc aria-live="polite"></div>`, { ico: 'celebration', anchor: o.anchor || 'wish-your-colleagues', cls: o.cls || '', sub: `<span data-wc-sub>${esc(WC_SUB[wcTab] || '')}</span>`, right: viewAll('View all', 'modal:colleagues') });
+  // One colleague card: photo + badge, name, ornament, role (+ years for work anniversaries), Wish Now!
   const WC_ROW = 4; // the section shows one full row; "View all" shows everyone
   const wcCard = (p, ico) => `<li class="bd-card">
       <span class="bd-av">${p.photo ? img(p.photo, p.name, 'avatar') : avatar(p.name)}<span class="bd-cake">${icon(ico)}</span></span>
       <b class="bd-name" title="${esc(p.name)}">${esc(p.name)}</b>
       ${ORNAMENT}
       <small class="bd-role">${esc(p.role)}</small>
-      <span class="wc-tags"><span class="wc-dept">${icon('business')}${esc(p.dept)}</span>${p.years ? `<span class="wc-years">${p.years} ${p.years === 1 ? 'year' : 'years'}</span>` : ''}</span>
+      ${p.years ? `<span class="wc-tags"><span class="wc-years">${p.years} ${p.years === 1 ? 'year' : 'years'}</span></span>` : ''}
       <button type="button" class="btn btn-primary btn-xs">Wish Now!</button></li>`;
-  // Framed colleague cards in the Home Birthdays design (photo with badge, serif name, ornament, role, department, Wish Now!)
+  // Framed colleague cards (photo with badge, name, ornament, role, Wish Now!)
   function renderWc() {
     const box = $('[data-wc]');
     if (!box) return;
@@ -809,19 +828,27 @@
       <span class="ap-name">${esc(a.name)}${icon('arrowR')}</span></button></li>`;
   const hrApps = () => panel('Applications', `<ul class="ap-grid">${HR.apps.slice(0, AP_SHOW).map(apTile).join('')}</ul>`, { ico: 'apps', anchor: 'applications', right: viewAll('View all', 'modal:apps') });
 
-  // ERP Winners: quarter pills; winner cards with quote
-  let erpQ = Object.keys(HR.erp)[0];
+  // ERP Winners: financial-year dropdown + Q1–Q4 tabs; winner cards with quote
   // A winner's photo: their own (past winners) or the Home recognition photo (current winners); else the default avatar
   const erpPhoto = (p) => { const src = p.photo || (H.recognition.photos || {})[p.name]; return src ? img(src, p.name, 'avatar') : avatar(p.name); };
   // View-all archive: the current quarter tabs plus the earlier Q2 FY 2024-2025 winners captured from the live site
   const erpArchive = () => ({ ...HR.erp, [D.erpPeriod]: D.erp });
+  // Quarter keys in the data look like "Q2 FY 2026-2027": split into the quarter (tab) and financial year (dropdown)
+  const ERP_QS = ['Q1', 'Q2', 'Q3', 'Q4'];
+  const erpSplit = (k) => { const m = /^(Q[1-4]) (FY .+)$/.exec(k); return m ? { q: m[1], fy: m[2] } : null; };
+  const erpYears = () => [...new Set(Object.keys(erpArchive()).map((k) => (erpSplit(k) || {}).fy).filter(Boolean))].sort().reverse();
+  const erpCount = (q, fy) => (erpArchive()[`${q} ${fy}`] || []).length;
+  // a financial year opens on its latest quarter that has winners (Q1 when none do yet)
+  const erpDefaultQ = (fy) => [...ERP_QS].reverse().find((q) => erpCount(q, fy)) || 'Q1';
+  let erpFy = erpYears()[0], erpQ = erpDefaultQ(erpFy);
+  const erpKey = () => `${erpQ} ${erpFy}`;
   // Header: title + live subtitle (quarter · winner count) + quarter tabs. Body: award cards — champagne band with a
   // "Winner" chip and medal, photo in a gold ring overlapping the band, serif name, role chip, ornament, quoted citation.
-  const erpSub = (q) => { const n = (HR.erp[q] || []).length; return `For ${esc(q)} · ${n ? `${n} winner${n === 1 ? '' : 's'}` : 'to be announced'}`; };
+  const erpSub = (q) => { const n = (erpArchive()[q] || []).length; return `For ${esc(q)} · ${n ? `${n} winner${n === 1 ? '' : 's'}` : 'to be announced'}`; };
   const hrErp = () => panel('Employee Recognition Program (ERP) Winners',
     `<div class="ew-box" data-erp aria-live="polite"></div>`,
-    { ico: 'verified', anchor: 'erp-winners', cls: 'ew-panel', sub: `<span data-erp-sub>${erpSub(erpQ)}</span>`,
-      right: `<div class="ew-actions"><div class="ew-tabs" role="group" aria-label="Quarter">${Object.keys(HR.erp).map((q) => `<button type="button" class="ew-tab" data-erp-q="${esc(q)}" aria-pressed="${q === erpQ}">${esc(q)}</button>`).join('')}</div>${viewAll('View all', 'modal:erp')}</div>` });
+    { ico: 'verified', anchor: 'erp-winners', cls: 'ew-panel', sub: `<span data-erp-sub>${erpSub(erpKey())}</span>`,
+      right: `<div class="ew-actions">${yearPicker('erp', erpYears(), erpFy, 'Financial year')}<div class="ew-tabs" role="group" aria-label="Quarter">${ERP_QS.map((q) => `<button type="button" class="ew-tab" data-erp-q="${q}" aria-pressed="${q === erpQ}">${q}</button>`).join('')}</div>${viewAll('View all', 'modal:erp')}</div>` });
   const erpCard = (p) => `<article class="ew-card">
       <div class="ew-band"></div>
       <span class="ew-av">${erpPhoto(p)}</span>
@@ -837,17 +864,19 @@
   function renderErp() {
     const box = $('[data-erp]');
     if (!box) return;
+    const all = erpArchive();
     const pane = (q) => {
-      const list = HR.erp[q] || [];
+      const list = all[q] || [];
       return list.length
         ? `<div class="ew-grid">${list.map(erpCard).join('')}</div>`
         : `<div class="ew-empty"><span class="ew-empty-ico">${icon('verified')}</span><b>Winners for ${esc(q)} will appear here</b><span>No winners have been announced for this quarter yet.</span></div>`;
     };
-    box.innerHTML = Object.keys(HR.erp).map((q) => (q === erpQ
-      ? `<div class="ml-pane ew-pane">${pane(q)}</div>`
-      : `<div class="ml-pane ew-pane" aria-hidden="true" inert>${pane(q)}</div>`)).join('');
+    box.innerHTML = ERP_QS.map((q) => (q === erpQ
+      ? `<div class="ml-pane ew-pane">${pane(`${q} ${erpFy}`)}</div>`
+      : `<div class="ml-pane ew-pane" aria-hidden="true" inert>${pane(`${q} ${erpFy}`)}</div>`)).join('');
     const sub = $('[data-erp-sub]');
-    if (sub) sub.innerHTML = erpSub(erpQ);
+    if (sub) sub.innerHTML = erpSub(erpKey());
+    ypSet($('[data-yp="erp"]'), erpFy);
     document.querySelectorAll('[data-erp-q]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.erpQ === erpQ)));
   }
 
@@ -899,6 +928,35 @@
       </li>`).join('')}</ul>`,
       { ico: 'verified', anchor: 'our-values', sub: 'The principles behind everything we do', cls: 'vl-panel' });
   };
+  // Year Book: a cover carousel — the chosen year large in the middle, its neighbours smaller at the sides (click one to bring
+  // it to the centre), arrows either side; phones show one cover (swipe or use the arrows).
+  let esgIdx = 0;
+  const icEsg = () => panel('Year Book', `<div class="esg">
+      <div class="esg-stage">
+        <button type="button" class="esg-arrow" data-esg-step="-1" aria-label="Previous year book">${icon('chevL')}</button>
+        <div class="esg-row" data-esg aria-live="polite"></div>
+        <button type="button" class="esg-arrow" data-esg-step="1" aria-label="Next year book">${icon('chevR')}</button>
+      </div>
+    </div>`, { ico: 'doc', anchor: 'year-book', cls: 'esg-panel' });
+  const esgCard = (r, i, pos) => {
+    const cover = `<span class="esg-cover">${img(r.photo, '')}<span class="esg-ink"><small>Oberoi Realty</small><b>${esc(r.kicker)}</b><i></i><em>${esc(r.year)}</em></span></span>`;
+    return `<figure class="esg-card is-${pos}">
+        ${pos === 'center' ? cover : `<button type="button" class="esg-pick" data-esg-go="${i}" aria-label="Show ${esc(r.title)}">${cover}</button>`}
+        <figcaption><span>${esc(r.title)}</span><button type="button" class="esg-dl" aria-label="Download ${esc(r.title)}" title="Download">${icon('download')}</button></figcaption>
+      </figure>`;
+  };
+  function renderEsg(dir = 0) {
+    const row = $('[data-esg]');
+    if (!row) return;
+    const items = IC.yearbook, n = items.length;
+    esgIdx = ((esgIdx % n) + n) % n;
+    const at = (k) => ((esgIdx + k) % n + n) % n;
+    row.className = `esg-row${dir ? (dir > 0 ? ' slide-next' : ' slide-prev') : ''}`;
+    row.innerHTML = (n > 2 ? esgCard(items[at(-1)], at(-1), 'prev') : '<span class="esg-gap"></span>')
+      + esgCard(items[esgIdx], esgIdx, 'center')
+      + (n > 1 ? esgCard(items[at(1)], at(1), 'next') : '<span class="esg-gap"></span>');
+    document.querySelectorAll('[data-esg-step]').forEach((b) => { b.disabled = n < 2; });
+  }
   const psMedia = (s) => `<div class="ps-media${s.portrait ? ' portrait' : ''}"${s.portrait ? ` style="--bg:url('${esc(s.img)}')"` : ''}>${img(s.img, '')}<span class="ps-tag">${esc(s.tag)}</span></div>`;
   const icEmpty = (what) => `<div data-ic-empty hidden>${empty(`No ${what} found`, 'Try a different search term', 'article')}</div>`;
   // People Stories — editorial bento ("travel journal"): headline intro with a dotted route line, then a bento of story cards —
@@ -1105,9 +1163,9 @@
   // album years, newest first; one album card (page: data-tg-album, "View all" pop-up: data-ta-album)
   const tgYears = () => [...new Set(TE.albums.map((al) => al.year))].sort((x, y) => y - x);
   // year dropdown in the site's colours: a pill button and a listbox (kind: 'tg' = the page, 'ta' = the "All albums" pop-up)
-  const yearPicker = (kind, years, cur) => `<div class="yp yp-${kind}" data-yp="${kind}">
-      <button type="button" class="yp-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Album year"><span data-yp-val>${cur}</span>${icon('chevR')}</button>
-      <ul class="yp-menu" role="listbox" aria-label="Album year" hidden>${years.map((y) => `<li role="option" tabindex="-1" data-yp-opt="${y}" aria-selected="${y === cur}">${y}${icon('check')}</li>`).join('')}</ul>
+  const yearPicker = (kind, years, cur, label = 'Album year') => `<div class="yp yp-${kind}" data-yp="${kind}">
+      <button type="button" class="yp-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="${label}"><span data-yp-val>${cur}</span>${icon('chevR')}</button>
+      <ul class="yp-menu" role="listbox" aria-label="${label}" hidden>${years.map((y) => `<li role="option" tabindex="-1" data-yp-opt="${y}" aria-selected="${y === cur}">${y}${icon('check')}</li>`).join('')}</ul>
     </div>`;
   const tgCard = (al, i, attr) => `<button type="button" class="tg-album" ${attr}="${i}"${attr === 'data-tg-album' ? ` aria-pressed="${i === tgAlbum}"` : ''}><span class="tg-cover">${img(al.photos[0], '')}</span><span class="tg-album-t"><b>${esc(al.title)}</b><small>${al.count} photos</small></span></button>`;
   // Full-screen viewer for the Photo Gallery (shares tgAlbum / tgPhoto with the page viewer)
@@ -1150,7 +1208,7 @@
       ${dashShortcuts()}
       ${bannerCarousel()}
       ${dashBirthdays()}
-      ${H.learningEvent ? `<div class="dash-cols">
+      ${leUp().length ? `<div class="dash-cols">
         <div class="dash-main">
           ${dashMenu()}
           ${dashVideos()}
@@ -1183,7 +1241,7 @@
       ${jobsPanel(H.jobs, pagerOne, 'hr-jobs', 'cards', 'jobPostings')}
       <div class="row"><div class="c-6">${hrRequest()}</div><div class="c-6">${hrSuggest()}</div></div>`,
 
-    'i-connect': () => `${icValues()}${icStories()}${icNews()}`,
+    'i-connect': () => `${icValues()}${icEsg()}${icStories()}${icNews()}`,
 
     'training-events': () => `
       <div class="section te-section" data-anchor="learning-events">
@@ -1225,6 +1283,17 @@
   }
   // time-of-day greeting for the top bar
   const greetWord = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
+  // Section links (#page/section) land just below the real top bar, whose height changes with the screen size (two rows on phones)
+  function syncAnchorOffset() {
+    const inner = document.querySelector('.topbar-inner');
+    if (!inner) return;
+    // Home's quick-link strip joins the top bar once the page is scrolled, so a section link must clear it too
+    const qb = document.querySelector('#quickbar');
+    let qh = 0;
+    if (qb) { const shown = qb.classList.contains('show'); qb.classList.add('show'); qh = qb.offsetHeight; if (!shown) qb.classList.remove('show'); }
+    document.documentElement.style.setProperty('--anchor-top', `${inner.offsetHeight + qh}px`);
+  }
+  window.addEventListener('resize', syncAnchorOffset);
   function renderTopbar(active) {
     const d = today;
     $('#topbar').innerHTML = `
@@ -1423,11 +1492,9 @@
           <div class="ml-panes" data-hlist></div>
         </div>`;
     } else if (name === 'erp') {
-      // ERP Winners — View all: quarter list (with winner counts) on the left, that quarter's winners on the right
-      // Layout: fixed-size window → quarter strip (with counts) → gold summary band → two columns of winner cards.
-      const all = erpArchive(), qs = Object.keys(all);
+      // ERP Winners — View all: financial-year dropdown + Q1–Q4 tabs (with winner counts) → two columns of winner cards
       body = `${head('<span class="ea-title">ERP Winners<small>Employee Recognition Program</small></span>', `<label class="field-search sm mwc-search">${icon('search')}<span class="sr-only">Search winners</span><input type="search" placeholder="Search winners..." data-ea-search /></label>`)}
-        <div class="ea-strip" role="group" aria-label="Quarter">${qs.map((q, i) => `<button type="button" class="ea-q${all[q].length ? '' : ' is-empty'}" data-ea-q="${esc(q)}" aria-pressed="${i === 0}"><span class="ea-q-name">${esc(q)}</span><span class="ea-q-count">${all[q].length || '—'}</span></button>`).join('')}</div>
+        <div class="ea-strip">${yearPicker('ea', erpYears(), erpFy, 'Financial year')}<div class="ea-qs" role="group" aria-label="Quarter">${ERP_QS.map((q) => `<button type="button" class="ea-q" data-ea-q="${q}" aria-pressed="${q === erpQ}"><span class="ea-q-name">${q}</span><span class="ea-q-count"></span></button>`).join('')}</div></div>
         <div class="modal-body ea-body" data-ea aria-live="polite"></div>`;
     } else if (name === 'stories') {
       const tags = [...new Set(IC.stories.map((s) => s.tag))];
@@ -1554,7 +1621,7 @@
         renderHolidayList(bd);
       }
     });
-    if (name === 'weekly-menu') renderWeeklyMenu(bd); else if (name === 'holiday-calendar') renderHolidayList(bd); else if (name === 'colleagues') renderMwc(bd); else if (name === 'erp') renderEa(bd); else if (name === 'stories' || name === 'newsletters') renderSa(bd); else if (name === 'gallery') { bd.classList.add('lb-backdrop'); renderLb(bd); } else if (name === 'policies') { bd.dataset.cat = POL_ALL; bd.dataset.sort = 'cat'; renderAp(bd); } else if (name === 'calendar') { bd.classList.add('drawer-backdrop'); bd.dataset.y = today.getFullYear(); bd.dataset.m = today.getMonth(); bd.dataset.sel = isoOf(today0); renderCd(bd); } else if (name === 'te-ld' || name === 'te-fun') { bd.dataset.kind = name; bd.dataset.year = today.getFullYear(); renderTev(bd); } else if (name === 'story') {
+    if (name === 'weekly-menu') renderWeeklyMenu(bd); else if (name === 'holiday-calendar') renderHolidayList(bd); else if (name === 'colleagues') renderMwc(bd); else if (name === 'erp') { bd.dataset.fy = erpFy; renderEa(bd); } else if (name === 'stories' || name === 'newsletters') renderSa(bd); else if (name === 'gallery') { bd.classList.add('lb-backdrop'); renderLb(bd); } else if (name === 'policies') { bd.dataset.cat = POL_ALL; bd.dataset.sort = 'cat'; renderAp(bd); } else if (name === 'calendar') { bd.classList.add('drawer-backdrop'); bd.dataset.y = today.getFullYear(); bd.dataset.m = today.getMonth(); bd.dataset.sel = isoOf(today0); renderCd(bd); } else if (name === 'te-ld' || name === 'te-fun') { bd.dataset.kind = name; bd.dataset.year = today.getFullYear(); renderTev(bd); } else if (name === 'story') {
       bd.dataset.srFrom = (opener && opener.dataset.from) || '';
       bd.dataset.srSet = (opener && opener.dataset.set) || 'stories';
       renderSr(bd, +((opener && opener.dataset.story) || 0));
@@ -1583,20 +1650,17 @@
       + Object.keys(HR.colleagues).map((t) => `<div class="ml-pane mwc-pane" aria-hidden="true" inert>${pane(t, () => true)}</div>`).join('');
   }
 
-  // ERP archive pop-up: gold summary band (medal, quarter, count, winner photos) and the winners as two columns of
+  // ERP archive pop-up: the winners as two columns of
   // horizontal cards (gold-ringed photo, serif name, role, 3-line citation with Read more), filtered by the search box.
   // The window has a fixed size and scrolls inside, so switching quarters or searching never changes its size.
   function renderEa(bd) {
-    const all = erpArchive();
-    const active = $('[data-ea-q][aria-pressed="true"]', bd).dataset.eaQ;
+    const all = erpArchive(), fy = bd.dataset.fy || erpFy;
+    const active = `${$('[data-ea-q][aria-pressed="true"]', bd).dataset.eaQ} ${fy}`;
+    // winner counts on the quarter tabs for the chosen financial year
+    bd.querySelectorAll('[data-ea-q]').forEach((b) => { const n = erpCount(b.dataset.eaQ, fy); b.classList.toggle('is-empty', !n); $('.ea-q-count', b).textContent = n || '—'; });
     const term = ($('[data-ea-search]', bd).value || '').trim().toLowerCase();
     const people = all[active] || [];
     const list = people.filter((p) => !term || `${p.name} ${p.role}`.toLowerCase().includes(term));
-    const n = people.length;
-    const summary = `<div class="ea-summary">
-        <div class="ea-sum-text"><small>Employee Recognition Program</small><h3>${esc(active)}</h3><span>${n ? `${n} winner${n === 1 ? '' : 's'} recognised` : 'Winners to be announced'}</span></div>
-        ${n ? `<div class="ea-stack" aria-hidden="true">${people.slice(0, 5).map((p) => `<span>${erpPhoto(p)}</span>`).join('')}${n > 5 ? `<span class="ea-more">+${n - 5}</span>` : ''}</div>` : ''}
-      </div>`;
     const card = (p) => `<article class="ea-card">
         <span class="ea-av">${erpPhoto(p)}</span>
         <div class="ea-info">
@@ -1611,7 +1675,7 @@
         ? '<b>No matching winners</b><span>Try another name or role</span>'
         : `<b>Winners for ${esc(active)} will appear here</b><span>No winners have been announced for this quarter yet.</span>`}</div>`;
     const body = $('[data-ea]', bd);
-    body.innerHTML = summary + content;
+    body.innerHTML = content;
     body.scrollTop = 0;
     // show "Read more" only where the citation is actually clamped
     body.querySelectorAll('.ea-card').forEach((c) => { const qEl = $('.ea-quote', c); $('[data-ea-more]', c).hidden = qEl.scrollHeight <= qEl.clientHeight + 2; });
@@ -1658,10 +1722,13 @@
     content.querySelectorAll('[data-cal]').forEach(renderCal);
     renderMenu(D.menu.active);
     initCarousel();
-    if (active === 'home') { initDash(); initReco(); if (section === 'everyday-hero') recoGo(1); }
+    wcMinH = 0;
+    if (active === 'home') { renderWc(); initDash(); initReco(); if (section === 'everyday-hero') recoGo(1); }
     if (active === 'corporate') { renderCv(); initMedia(); }
     if (active === 'hr-admin') { renderWc(); renderErp(); }
     if (active === 'training-events') renderTg();
+    if (active === 'i-connect') renderEsg();
+    syncAnchorOffset();
     const target = section && content.querySelector(`[data-anchor="${section}"]`);
     if (target) target.scrollIntoView({ block: 'start' });
     else window.scrollTo(0, 0);
@@ -1769,6 +1836,11 @@
     }
     const wcBtn = e.target.closest('[data-wc-tab]');
     if (wcBtn) { wcTab = wcBtn.dataset.wcTab; renderWc(); return; }
+    // Year Book carousel: arrows, side covers
+    const esgS = e.target.closest('[data-esg-step]');
+    if (esgS) { esgIdx += +esgS.dataset.esgStep; renderEsg(+esgS.dataset.esgStep); return; }
+    const esgG = e.target.closest('[data-esg-go]');
+    if (esgG) { const to = +esgG.dataset.esgGo, n = IC.yearbook.length, dir = to === (esgIdx + 1) % n ? 1 : -1; esgIdx = to; renderEsg(dir); return; }
     const erpBtn = e.target.closest('[data-erp-q]');
     if (erpBtn) { erpQ = erpBtn.dataset.erpQ; renderErp(); return; }
     const tgAl = e.target.closest('[data-tg-album]'), tgPh = e.target.closest('[data-tg-photo]'), tgSt = e.target.closest('[data-tg-step]');
@@ -1876,7 +1948,13 @@
     ypOpen(yp, false);
     $('.yp-btn', yp).focus();
     if (yp.dataset.yp === 'tg') { tgAlbum = Math.max(0, TE.albums.findIndex((x) => x.year === +y)); tgPhoto = 0; renderTg(); }
-    else { const bd = yp.closest('.modal-backdrop'); bd.querySelectorAll('[data-ta-year]').forEach((s) => { s.hidden = s.dataset.taYear !== String(y); }); $('[data-ta-body]', bd).scrollTop = 0; }
+    else if (yp.dataset.yp === 'erp') { erpFy = y; erpQ = erpDefaultQ(y); renderErp(); }
+    else if (yp.dataset.yp === 'ea') {
+      const bd = yp.closest('.modal-backdrop'), q = erpDefaultQ(y);
+      bd.dataset.fy = y;
+      bd.querySelectorAll('[data-ea-q]').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.eaQ === q)));
+      renderEa(bd);
+    } else { const bd = yp.closest('.modal-backdrop'); bd.querySelectorAll('[data-ta-year]').forEach((s) => { s.hidden = s.dataset.taYear !== String(y); }); $('[data-ta-body]', bd).scrollTop = 0; }
   }
   document.addEventListener('click', (e) => {
     const yp = e.target.closest('[data-yp]');
@@ -1887,6 +1965,14 @@
     if (opt) return ypPick(yp, opt.dataset.ypOpt);
     if (e.target.closest('.yp-btn')) ypOpen(yp, $('.yp-btn', yp).getAttribute('aria-expanded') !== 'true');
   }, true);
+  // Year Book carousel: swipe left / right on touch screens
+  let esgX = null;
+  document.addEventListener('touchstart', (e) => { esgX = e.target.closest && e.target.closest('[data-esg]') ? e.touches[0].clientX : null; }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    if (esgX === null) return;
+    const dx = e.changedTouches[0].clientX - esgX; esgX = null;
+    if (Math.abs(dx) > 40) { const dir = dx < 0 ? 1 : -1; esgIdx += dir; renderEsg(dir); }
+  }, { passive: true });
   document.addEventListener('keydown', (e) => {
     const yp = e.target.closest && e.target.closest('[data-yp]');
     if (!yp) return;

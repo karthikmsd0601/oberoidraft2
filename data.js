@@ -528,8 +528,17 @@ window.APP_DATA = {
   // I-Connect: text and photos from the live-site screenshots (photos cut from the screenshots). The live list shows
   // "View 3 more stories"; those three were not in the screenshots, so they are not here yet.
   iconnect: {
+    // SAMPLE Year Book content: the real covers and PDFs are not in the project yet, so each cover is an Unsplash stock photo
+    // with the name set on top, and the download buttons are presentation only. kicker + year = the text printed on the cover.
+    yearbook: [
+      { title: 'Year Book 2025-26', kicker: 'Year Book', year: '2025 - 26', photo: PHOTO('1486406146926-c627a92ad1ab'), sample: true },
+      { title: 'Year Book 2024-25', kicker: 'Year Book', year: '2024 - 25', photo: PHOTO('1477959858617-67f85cf4f1df'), sample: true },
+      { title: 'Year Book 2023-24', kicker: 'Year Book', year: '2023 - 24', photo: PHOTO('1460317442991-0ec209397118'), sample: true },
+      { title: 'Year Book 2022-23', kicker: 'Year Book', year: '2022 - 23', photo: PHOTO('1449824913935-59a10b8d2000'), sample: true },
+    ],
     sections: [
       { id: 'our-values', label: 'Our Values' },
+      { id: 'year-book', label: 'Year Book' },
       { id: 'people-stories', label: 'People Stories' },
       { id: 'newsletter', label: 'Newsletter' },
     ],
